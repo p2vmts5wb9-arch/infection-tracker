@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감염병 접촉자 추적 시스템</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface2: #f0ede8;
+  --border: #e2ddd6;
+  --border2: #ccc7be;
+  --text: #1a1916;
+  --text2: #6b6760;
+  --text3: #9e9b96;
+  --accent: #2d5a3d;
+  --accent-light: #e8f2ec;
+  --accent-mid: #4a8c62;
+  --high: #c0392b;
+  --high-bg: #fdf0ee;
+  --high-border: #f5c0ba;
+  --mid: #b7600a;
+  --mid-bg: #fdf4e8;
+  --mid-border: #f5d49a;
+  --safe: #1a6b3a;
+  --safe-bg: #eaf4ee;
+  --safe-border: #a8d8b8;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* header */
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; gap: 16px; height: 60px; position: sticky; top: 0; z-index: 100; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.logo-text { font-size: 15px; font-weight: 600; color: var(--text); }
+.logo-sub { font-size: 12px; color: var(--text2); margin-left: 4px; font-weight: 400; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.grade-badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: var(--accent-light); color: var(--accent); font-weight: 500; border: 1px solid #c8dece; }
+
+/* nav */
+nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; gap: 0; }
+.nav-tab { padding: 14px 20px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text2); border: none; background: none; border-bottom: 2px solid transparent; transition: all .15s; position: relative; top: 1px; }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* main */
+main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+.panel { display: none; animation: fadeIn .2s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* page title */
+.page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.page-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; }
+
+/* card */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+
+/* upload zone */
+.upload-zone { border: 2px dashed var(--border2); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface); }
+.upload-zone:hover, .upload-zone.over { border-color: var(--accent-mid); background: var(--accent-light); }
+.upload-zone svg { width: 40px; height: 40px; stroke: var(--text3); margin-bottom: 12px; }
+.upload-zone:hover svg, .upload-zone.over svg { stroke: var(--accent); }
+.upload-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+.upload-sub { font-size: 13px; color: var(--text2); }
+
+/* code block */
+.code-block { background: #1e1e1e; border-radius: var(--radius); padding: 14px 16px; font-family: 'DM Mono', monospace; font-size: 12.5px; color: #d4d4d4; overflow-x: auto; margin-bottom: 12px; line-height: 1.7; }
+.code-comment { color: #6a9955; }
+.code-key { color: #9cdcfe; }
+.code-val { color: #ce9178; }
+
+/* buttons */
+.btn { height: 38px; padding: 0 18px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: var(--radius); border: 1px solid transparent; transition: all .15s; font-family: inherit; }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-primary:hover { background: #234d32; }
+.btn-outline { background: transparent; border-color: var(--border2); color: var(--text); }
+.btn-outline:hover { background: var(--surface2); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text2); }
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+.btn-danger { background: transparent; border-color: #e8b4b0; color: var(--high); }
+.btn-danger:hover { background: var(--high-bg); }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* msg */
+.msg { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.msg-ok { background: var(--safe-bg); border: 1px solid var(--safe-border); color: var(--safe); }
+.msg-err { background: var(--high-bg); border: 1px solid var(--high-border); color: var(--high); }
+.msg-warn { background: var(--mid-bg); border: 1px solid var(--mid-border); color: var(--mid); }
+.msg svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* data table */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+th { padding: 9px 12px; background: var(--surface2); font-weight: 600; color: var(--text2); text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); white-space: nowrap; font-size: 12px; }
+th:last-child { border-right: none; }
+td { padding: 7px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; }
+td:last-child { border-right: none; }
+tr:last-child td { border-bottom: none; }
+td.sid { font-family: 'DM Mono', monospace; font-weight: 500; background: var(--surface2); font-size: 12px; white-space: nowrap; }
+.chip { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 500; }
+.chip-room { background: #eef3ff; color: #3b5bdb; border: 1px solid #c5d0fc; }
+.chip-own { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+/* summary */
+.summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.scard { padding: 16px; border-radius: var(--radius); text-align: center; border: 1px solid transparent; }
+.scard .num { font-size: 28px; font-weight: 600; line-height: 1; margin-bottom: 5px; }
+.scard .lbl { font-size: 12px; font-weight: 500; }
+.sc-total { background: var(--surface2); border-color: var(--border); }
+.sc-total .num { color: var(--text); } .sc-total .lbl { color: var(--text2); }
+.sc-inf { background: var(--high-bg); border-color: var(--high-border); }
+.sc-inf .num { color: var(--high); } .sc-inf .lbl { color: var(--high); }
+.sc-high { background: var(--high-bg); border-color: var(--high-border); }
+.sc-high .num { color: var(--high); } .sc-high .lbl { color: var(--high); }
+.sc-mid { background: var(--mid-bg); border-color: var(--mid-border); }
+.sc-mid .num { color: var(--mid); } .sc-mid .lbl { color: var(--mid); }
+.sc-safe { background: var(--safe-bg); border-color: var(--safe-border); }
+.sc-safe .num { color: var(--safe); } .sc-safe .lbl { color: var(--safe); }
+
+/* infected bar */
+.inf-bar { background: var(--high-bg); border: 1px solid var(--high-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 1.5rem; display: flex; gap: 14px; align-items: flex-start; }
+.inf-pill { background: var(--high); color: white; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; margin-top: 3px; }
+.inf-sid { font-size: 18px; font-weight: 600; color: var(--high); font-family: 'DM Mono', monospace; margin-bottom: 5px; }
+.inf-schedule { font-size: 12px; color: var(--mid); line-height: 1.9; }
+
+/* risk sections */
+.risk-section { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 14px; box-shadow: var(--shadow); }
+.risk-header { padding: 12px 18px; display: flex; align-items: center; gap: 10px; }
+.risk-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.risk-title { font-size: 15px; font-weight: 600; }
+.risk-cnt { margin-left: auto; font-size: 13px; }
+.rh-high { background: var(--high-bg); border-bottom: 1px solid var(--high-border); }
+.rh-high .risk-pill { background: var(--high); color: white; }
+.rh-high .risk-title { color: var(--high); }
+.rh-high .risk-cnt { color: #a03025; }
+.rh-mid { background: var(--mid-bg); border-bottom: 1px solid var(--mid-border); }
+.rh-mid .risk-pill { background: var(--mid); color: white; }
+.rh-mid .risk-title { color: var(--mid); }
+.rh-mid .risk-cnt { color: #9a5008; }
+.risk-body { padding: 14px 18px; background: var(--surface); }
+.student-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.stu-card { padding: 10px 14px; border-radius: var(--radius); border: 1px solid; min-width: 155px; }
+.stu-card .stsid { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 13px; }
+.stu-card .stcnt { font-size: 12px; margin-top: 3px; font-weight: 500; }
+.stu-card .stdetail { font-size: 11px; margin-top: 5px; line-height: 1.7; opacity: .8; }
+.bar-bg { height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.bar-fill-h { height: 4px; background: var(--high); border-radius: 2px; }
+.bar-fill-m { height: 4px; background: var(--mid); border-radius: 2px; }
+.sc-h { background: var(--high-bg); border-color: var(--high-border); }
+.sc-h .stsid { color: var(--high); } .sc-h .stcnt { color: var(--high); }
+.sc-m { background: var(--mid-bg); border-color: var(--mid-border); }
+.sc-m .stsid { color: var(--mid); } .sc-m .stcnt { color: var(--mid); }
+
+/* safe */
+.safe-section { background: var(--safe-bg); border: 1px solid var(--safe-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 14px; }
+.safe-header { font-size: 14px; font-weight: 600; color: var(--safe); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+.safe-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.safe-tag { font-size: 12px; padding: 3px 10px; border-radius: 5px; background: white; color: var(--safe); border: 1px solid var(--safe-border); font-family: 'DM Mono', monospace; }
+
+/* threshold */
+.threshold-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 16px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 1rem; font-size: 13px; color: var(--text2); }
+.threshold-bar input[type=number] { width: 52px; height: 30px; text-align: center; font-size: 14px; font-weight: 500; border: 1px solid var(--border2); border-radius: 6px; font-family: inherit; }
+.threshold-bar label { font-weight: 500; color: var(--text); }
+.thr-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.thr-high { background: var(--high); }
+.thr-mid { background: var(--mid); }
+
+/* analyze input */
+.analyze-input { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+.analyze-input input { height: 42px; padding: 0 14px; font-size: 15px; font-family: 'DM Mono', monospace; font-weight: 500; border: 1.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); width: 200px; transition: border-color .15s; }
+.analyze-input input:focus { outline: none; border-color: var(--accent); }
+.analyze-input .btn-primary { height: 42px; padding: 0 24px; font-size: 14px; }
+
+/* show more */
+.show-more { display: flex; align-items: center; gap: 6px; padding: 8px 0 2px; font-size: 13px; color: var(--text2); cursor: pointer; width: fit-content; }
+.show-more:hover { color: var(--text); }
+
+/* empty */
+.empty { padding: 3rem; text-align: center; color: var(--text3); }
+.empty svg { width: 40px; height: 40px; stroke: var(--border2); margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
+.empty p { font-size: 14px; }
+
+/* export btn */
+.export-bar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+
+/* responsive */
+@media (max-width: 600px) {
+  .summary-grid { grid-template-columns: repeat(3, 1fr); }
+  main { padding: 1rem; }
+  header { padding: 0 1rem; }
+  nav { padding: 0 1rem; }
+  .nav-tab { padding: 12px 14px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+    </div>
+    <span class="logo-text">접촉자 추적 시스템</span>
+    <span class="logo-sub">감염병 대응</span>
+  </div>
+  <div class="header-right">
+    <span class="grade-badge">3학년 전용</span>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-tab active" onclick="switchTab('upload', this)">📁 시간표 업로드</button>
+  <button class="nav-tab" onclick="switchTab('preview', this)">📋 데이터 확인</button>
+  <button class="nav-tab" onclick="switchTab('analyze', this)">🔍 위험군 분석</button>
+</nav>
+
+<main>
+
+  <!-- 업로드 탭 -->
+  <div class="panel active" id="panel-upload">
+    <div class="page-title">시간표 업로드</div>
+    <div class="page-desc">CSV 파일로 학생 시간표를 등록하세요. 한 번 업로드하면 위험군 분석 탭에서 바로 사용할 수 있습니다.</div>
+
+    <div class="card">
+      <div class="card-title">CSV 파일 형식</div>
+      <div class="code-block"><span class="code-comment"># 첫 번째 행: 헤더 (고정)</span>
+<span class="code-key">학번</span>,<span class="code-val">0교시</span>,<span class="code-val">1교시</span>,<span class="code-val">2교시</span>,<span class="code-val">3교시</span>,<span class="code-val">4교시</span>,<span class="code-val">5교시</span>,<span class="code-val">6교시</span>,<span class="code-val">7교시</span>
+<span class="code-key">30101</span>,<span class="code-val">3-1</span>,<span class="code-val">3-1</span>,<span class="code-val">음악실</span>,<span class="code-val">3-1</span>,<span class="code-val">정보실</span>,<span class="code-val">3-1</span>,<span class="code-val">3-1</span>,<span class="code-val">체육관</span>
+<span class="code-key">30201</span>,<span class="code-val">3-2</span>,<span class="code-val">3-2</span>,<span class="code-val">3-2</span>,<span class="code-val">음악실</span>,<span class="code-val">3-2</span>,<span class="code-val">미술실</span>,<span class="code-val">3-2</span>,<span class="code-val">3-2</span></div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+        <strong style="color:var(--text)">사용 가능한 강의실:</strong><br>
+        반 교실: 3-1, 3-2, 3-3, 3-4, 3-5, 3-6, 3-7, 3-8, 3-9, 3-10, 3-11<br>
+        특별실: 다목적실, 정보실, 음악실, 미술실, 체육관
+      </div>
+    </div>
+
+    <div class="upload-zone" id="upload-zone"
+      onclick="document.getElementById('file-input').click()"
+      ondragover="ev(event,'over')" ondragleave="ev(event,'leave')" ondrop="ev(event,'drop')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <div class="upload-title">CSV 파일을 여기에 끌어다 놓거나 클릭하여 선택</div>
+      <div class="upload-sub">UTF-8 또는 EUC-KR 인코딩 지원 · .csv 파일만 가능</div>
+    </div>
+    <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFile(this.files[0])">
+
+    <div id="upload-msg" style="margin-top:12px;"></div>
+
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-outline" onclick="loadSample()">🧪 샘플 데이터로 테스트 (253명)</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()" style="margin-left:auto;">초기화</button>
+    </div>
+  </div>
+
+  <!-- 데이터 확인 탭 -->
+  <div class="panel" id="panel-preview">
+    <div class="page-title">데이터 확인</div>
+    <div class="page-desc">업로드된 시간표를 확인합니다. 최대 50명까지 미리보기로 표시됩니다.</div>
+    <div id="preview-content">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>먼저 시간표 파일을 업로드해주세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 분석 탭 -->
+  <div class="panel" id="panel-analyze">
+    <div class="page-title">위험군 분석</div>
+    <div class="page-desc">감염 학생의 학번을 입력하면 같은 강의실에서 수업한 횟수를 기준으로 위험군을 자동 분류합니다.</div>
+
+    <div class="card">
+      <div class="analyze-input">
+        <input type="text" id="inf-input" placeholder="학번 입력 (예: 30101)" maxlength="10">
+        <button class="btn btn-primary" onclick="doAnalyze()">위험군 분석 →</button>
+      </div>
+      <div class="threshold-bar">
+        <span><span class="thr-dot thr-high"></span><label>고위험군</label> 기준:</span>
+        <input type="number" id="thr-high" value="3" min="1" max="8"> 교시 이상
+        <span style="margin-left:8px;"><span class="thr-dot thr-mid"></span><label>중위험군</label> 기준:</span>
+        <input type="number" id="thr-mid" value="1" min="1" max="8"> 교시 이상
+        <span style="color:var(--text3);font-size:12px;">(0~7교시 총 8교시 기준)</span>
+      </div>
+    </div>
+
+    <div id="analyze-result">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>감염 학번을 입력하고 분석을 시작하세요.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const ROOMS = ['3-1','3-2','3-3','3-4','3-5','3-6','3-7','3-8','3-9','3-10','3-11','다목적실','정보실','음악실','미술실','체육관'];
+const PNAMES = ['0교시','1교시','2교시','3교시','4교시','5교시','6교시','7교시'];
+let db = {};
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function ev(e, type) {
+  e.preventDefault();
+  const z = document.getElementById('upload-zone');
+  if (type === 'over') z.classList.add('over');
+  else if (type === 'leave') z.classList.remove('over');
+  else if (type === 'drop') { z.classList.remove('over'); handleFile(e.dataTransfer.files[0]); }
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => parseCSV(e.target.result);
+  r.onerror = () => { const r2 = new FileReader(); r2.onload = e => parseCSV(e.target.result); r2.readAsText(file, 'EUC-KR'); };
+  r.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  const msg = document.getElementById('upload-msg');
+  if (lines.length < 2) { msg.innerHTML = '<div class="msg msg-err">⚠️ 데이터가 부족합니다. 헤더 포함 2줄 이상 필요합니다.</div>'; return; }
+  const errors = [], newDb = {};
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(s => s.trim());
+    if (cols.length < 9) { errors.push(`${i+1}행 열 부족`); continue; }
+    const sid = cols[0];
+    const rooms = cols.slice(1, 9);
+    const inv = rooms.filter(r => r && !ROOMS.includes(r));
+    if (inv.length) errors.push(`${sid}: 알 수 없는 강의실 → ${inv.join(', ')}`);
+    newDb[sid] = rooms;
+  }
+  if (!Object.keys(newDb).length) { msg.innerHTML = '<div class="msg msg-err">유효한 학생 데이터가 없습니다.</div>'; return; }
+  db = newDb;
+  const cnt = Object.keys(db).length;
+  let html = `<div class="msg msg-ok">✅ ${cnt}명의 시간표가 로드됐습니다.</div>`;
+  if (errors.length) html += `<div class="msg msg-warn">⚠️ 경고 ${errors.length}건: ${errors.slice(0,3).join(' / ')}${errors.length>3?` 외 ${errors.length-3}건`:''}</div>`;
+  msg.innerHTML = html;
+  renderPreview();
+}
+
+function renderPreview() {
+  const keys = Object.keys(db);
+  if (!keys.length) return;
+  const classCount = {};
+  keys.forEach(sid => { const cls = sid.slice(1, 3); classCount[cls] = (classCount[cls] || 0) + 1; });
+  let html = `<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+    <span style="font-size:15px;font-weight:600;">총 ${keys.length}명</span>`;
+  Object.entries(classCount).sort((a,b)=>a[0]-b[0]).forEach(([cls,cnt]) => {
+    html += `<span style="font-size:12px;padding:3px 9px;border-radius:5px;background:var(--accent-light);color:var(--accent);border:1px solid #c8dece;font-weight:500;">${parseInt(cls)}반 ${cnt}명</span>`;
+  });
+  html += `</div><div class="tbl-wrap"><table><thead><tr><th>학번</th>${PNAMES.map(p=>`<th>${p}</th>`).join('')}</tr></thead><tbody>`;
+  keys.slice(0, 50).forEach(sid => {
+    const baseRoom = db[sid][0];
+    html += `<tr><td class="sid">${sid}</td>${db[sid].map(r => `<td>${r ? `<span class="chip ${r===baseRoom?'chip-own':'chip-room'}">${r}</span>` : ''}</td>`).join('')}</tr>`;
+  });
+  if (keys.length > 50) html += `<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:12px;font-size:13px;">... 외 ${keys.length-50}명</td></tr>`;
+  html += '</tbody></table></div>';
+  document.getElementById('preview-content').innerHTML = html;
+}
+
+function doAnalyze() {
+  const infId = document.getElementById('inf-input').value.trim();
+  const thrHigh = parseInt(document.getElementById('thr-high').value) || 3;
+  const thrMid = parseInt(document.getElementById('thr-mid').value) || 1;
+  const el = document.getElementById('analyze-result');
+  if (!infId) { el.innerHTML = '<div class="msg msg-err">감염 학번을 입력해주세요.</div>'; return; }
+  if (!Object.keys(db).length) { el.innerHTML = '<div class="msg msg-err">먼저 시간표 파일을 업로드해주세요.</div>'; return; }
+  if (!db[infId]) { el.innerHTML = `<div class="msg msg-err">학번 <strong>${infId}</strong>은 데이터에 없습니다.</div>`; return; }
+
+  const infRooms = db[infId];
+  const high = [], mid = [], safe = [];
+  Object.entries(db).forEach(([sid, rooms]) => {
+    if (sid === infId) return;
+    const shared = [];
+    for (let p = 0; p < 8; p++) {
+      if (rooms[p] && infRooms[p] && rooms[p] === infRooms[p]) shared.push(`${PNAMES[p]}·${rooms[p]}`);
+    }
+    const cnt = shared.length;
+    if (cnt >= thrHigh) high.push({ sid, cnt, shared });
+    else if (cnt >= thrMid) mid.push({ sid, cnt, shared });
+    else safe.push(sid);
+  });
+  high.sort((a, b) => b.cnt - a.cnt);
+  mid.sort((a, b) => b.cnt - a.cnt);
+
+  const total = Object.keys(db).length;
+  let html = `<div class="summary-grid">
+    <div class="scard sc-total"><div class="num">${total}</div><div class="lbl">전체 학생</div></div>
+    <div class="scard sc-inf"><div class="num">1</div><div class="lbl">감염자</div></div>
+    <div class="scard sc-high"><div class="num">${high.length}</div><div class="lbl">고위험군</div></div>
+    <div class="scard sc-mid"><div class="num">${mid.length}</div><div class="lbl">중위험군</div></div>
+    <div class="scard sc-safe"><div class="num">${safe.length}</div><div class="lbl">저위험</div></div>
+  </div>
+  <div class="inf-bar">
+    <span class="inf-pill">감염자</span>
+    <div>
+      <div class="inf-sid">${infId}</div>
+      <div class="inf-schedule">${infRooms.map((r,i) => `<strong>${PNAMES[i]}</strong> ${r||'—'}`).join(' &nbsp;|&nbsp; ')}</div>
+    </div>
+  </div>`;
+
+  if (high.length) {
+    html += `<div class="risk-section">
+      <div class="risk-header rh-high">
+        <span class="risk-pill">고위험군</span>
+        <span class="risk-title">같은 강의실 ${thrHigh}교시 이상</span>
+        <span class="risk-cnt">${high.length}명</span>
+      </div>
+      <div class="risk-body"><div class="student-grid">
+        ${high.map(s => {
+          const pct = Math.round(s.cnt / 8 * 100);
+          return `<div class="stu-card sc-h">
+            <div class="stsid">${s.sid}</div>
+            <div class="stcnt">${s.cnt}교시 겹침 (${pct}%)</div>
+            <div class="bar-bg"><div class="bar-fill-h" style="width:${pct}%"></div></div>
+            <div class="stdetail">${s.shared.join(' / ')}</div>
+          </div>`;
+        }).join('')}
+      </div></div>
+    </div>`;
+  }
+
+  if (mid.length) {
+    const showCount = 12;
+    const midId = 'mid-grid-' + Date.now();
+    html += `<div class="risk-section">
+      <div class="risk-header rh-mid">
+        <span class="risk-pill">중위험군</span>
+        <span class="risk-title">같은 강의실 ${thrMid}~${thrHigh-1}교시</span>
+        <span class="risk-cnt">${mid.length}명</span>
+      </div>
+      <div class="risk-body">
+        <div class="student-grid" id="${midId}"></div>
+        ${mid.length > showCount ? `<div class="show-more" id="more-${midId}" onclick="toggleMid('${midId}',${JSON.stringify(mid).replace(/'/g,"\\'")},'${thrHigh}')">▼ 나머지 ${mid.length - showCount}명 더 보기</div>` : ''}
+      </div>
+    </div>`;
+    html += `<script>
+      (function(){
+        const data=${JSON.stringify(mid)};
+        const el=document.getElementById('${midId}');
+        data.slice(0,${showCount}).forEach(s=>{
+          const pct=Math.round(s.cnt/8*100);
+          el.innerHTML+=\`<div class="stu-card sc-m"><div class="stsid">\${s.sid}</div><div class="stcnt">\${s.cnt}교시 겹침 (\${pct}%)</div><div class="bar-bg"><div class="bar-fill-m" style="width:\${pct}%"></div></div><div class="stdetail">\${s.shared.join(' / ')}</div></div>\`;
+        });
+      })();
+    <\/script>`;
+  }
+
+  if (safe.length) {
+    html += `<div class="safe-section">
+      <div class="safe-header">✅ 저위험 (같은 강의실 없음) — ${safe.length}명</div>
+      <div class="safe-tags">${safe.map(id => `<span class="safe-tag">${id}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  html += `<div class="export-bar"><button class="btn btn-outline btn-sm" onclick="exportCSV('${infId}',${JSON.stringify(high)},${JSON.stringify(mid)},${JSON.stringify(safe)})">📥 결과 CSV 내보내기</button></div>`;
+  el.innerHTML = html;
+}
+
+window.toggleMid = function(gridId, data, thrHigh) {
+  const el = document.getElementById(gridId);
+  const btn = document.getElementById('more-' + gridId);
+  const expanded = el.dataset.expanded === 'true';
+  if (!expanded) {
+    data.slice(12).forEach(s => {
+      const pct = Math.round(s.cnt / 8 * 100);
+      el.innerHTML += `<div class="stu-card sc-m"><div class="stsid">${s.sid}</div><div class="stcnt">${s.cnt}교시 겹침 (${pct}%)</div><div class="bar-bg"><div class="bar-fill-m" style="width:${pct}%"></div></div><div class="stdetail">${s.shared.join(' / ')}</div></div>`;
+    });
+    el.dataset.expanded = 'true';
+    btn.textContent = '▲ 접기';
+  } else {
+    const cards = el.querySelectorAll('.stu-card');
+    cards.forEach((c, i) => { if (i >= 12) c.remove(); });
+    el.dataset.expanded = 'false';
+    btn.textContent = `▼ 나머지 ${data.length - 12}명 더 보기`;
+  }
+};
+
+function exportCSV(infId, high, mid, safe) {
+  let csv = '학번,위험등급,겹친교시수,겹친수업\n';
+  csv += `${infId},감염자,,\n`;
+  high.forEach(s => csv += `${s.sid},고위험군,${s.cnt},"${s.shared.join(' / ')}"\n`);
+  mid.forEach(s => csv += `${s.sid},중위험군,${s.cnt},"${s.shared.join(' / ')}"\n`);
+  safe.forEach(id => csv += `${id},저위험,0,\n`);
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `접촉자분석_${infId}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function loadSample() {
+  const specials = ['다목적실','정보실','음악실','미술실','체육관'];
+  let seed = 42;
+  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
+  db = {};
+  for (let cls = 1; cls <= 11; cls++) {
+    for (let n = 1; n <= 23; n++) {
+      const sid = `3${String(cls).padStart(2,'0')}${String(n).padStart(2,'0')}`;
+      const base = `3-${cls}`;
+      const schedule = [base];
+      for (let p = 1; p < 8; p++) schedule.push(rand() < 0.28 ? specials[Math.floor(rand() * specials.length)] : base);
+      db[sid] = schedule;
+    }
+  }
+  document.getElementById('upload-msg').innerHTML = `<div class="msg msg-ok">✅ 샘플 데이터 ${Object.keys(db).length}명이 로드됐습니다. 위험군 분석 탭에서 <strong>30101</strong>을 입력해보세요.</div>`;
+  renderPreview();
+}
+
+function clearAll() {
+  db = {};
+  document.getElementById('upload-msg').innerHTML = '';
+  document.getElementById('preview-content').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>먼저 시간표 파일을 업로드해주세요.</p></div>';
+  document.getElementById('analyze-result').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>감염 학번을 입력하고 분석을 시작하세요.</p></div>';
+  document.getElementById('inf-input').value = '';
+}
+</script>
+</body>
+</html>
