@@ -1,536 +1,2509 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>감염병 접촉자 추적 시스템</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #f7f6f3;
-  --surface: #ffffff;
-  --surface2: #f0ede8;
-  --border: #e2ddd6;
-  --border2: #ccc7be;
-  --text: #1a1916;
-  --text2: #6b6760;
-  --text3: #9e9b96;
-  --accent: #2d5a3d;
-  --accent-light: #e8f2ec;
-  --accent-mid: #4a8c62;
-  --high: #c0392b;
-  --high-bg: #fdf0ee;
-  --high-border: #f5c0ba;
-  --mid: #b7600a;
-  --mid-bg: #fdf4e8;
-  --mid-border: #f5d49a;
-  --safe: #1a6b3a;
-  --safe-bg: #eaf4ee;
-  --safe-border: #a8d8b8;
-  --radius: 10px;
-  --radius-lg: 14px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>감염병 접촉자 추적 시스템</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --bg: #f7f6f3;
+        --surface: #fff;
+        --surface2: #f0ede8;
+        --border: #e2ddd6;
+        --border2: #ccc7be;
+        --text: #1a1916;
+        --text2: #6b6760;
+        --text3: #9e9b96;
+        --accent: #2d5a3d;
+        --accent-light: #e8f2ec;
+        --accent-mid: #4a8c62;
+        --high: #c0392b;
+        --high-bg: #fdf0ee;
+        --high-border: #f5c0ba;
+        --mid: #b7600a;
+        --mid-bg: #fdf4e8;
+        --mid-border: #f5d49a;
+        --safe: #1a6b3a;
+        --safe-bg: #eaf4ee;
+        --safe-border: #a8d8b8;
+        --radius: 10px;
+        --radius-lg: 14px;
+        --shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 4px 12px rgba(0, 0, 0, .04);
+    }
 
-/* header */
-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; gap: 16px; height: 60px; position: sticky; top: 0; z-index: 100; }
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-.logo-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.logo-text { font-size: 15px; font-weight: 600; color: var(--text); }
-.logo-sub { font-size: 12px; color: var(--text2); margin-left: 4px; font-weight: 400; }
-.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.grade-badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: var(--accent-light); color: var(--accent); font-weight: 500; border: 1px solid #c8dece; }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-/* nav */
-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; gap: 0; }
-.nav-tab { padding: 14px 20px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text2); border: none; background: none; border-bottom: 2px solid transparent; transition: all .15s; position: relative; top: 1px; }
-.nav-tab:hover { color: var(--text); }
-.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    body {
+        font-family: 'Noto Sans KR', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+    }
 
-/* main */
-main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
-.panel { display: none; animation: fadeIn .2s ease; }
-.panel.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: 60px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
 
-/* page title */
-.page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-.page-desc { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; }
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-/* card */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
-.card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--accent);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-/* upload zone */
-.upload-zone { border: 2px dashed var(--border2); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface); }
-.upload-zone:hover, .upload-zone.over { border-color: var(--accent-mid); background: var(--accent-light); }
-.upload-zone svg { width: 40px; height: 40px; stroke: var(--text3); margin-bottom: 12px; }
-.upload-zone:hover svg, .upload-zone.over svg { stroke: var(--accent); }
-.upload-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
-.upload-sub { font-size: 13px; color: var(--text2); }
+    .logo-icon svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: white;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
 
-/* code block */
-.code-block { background: #1e1e1e; border-radius: var(--radius); padding: 14px 16px; font-family: 'DM Mono', monospace; font-size: 12.5px; color: #d4d4d4; overflow-x: auto; margin-bottom: 12px; line-height: 1.7; }
-.code-comment { color: #6a9955; }
-.code-key { color: #9cdcfe; }
-.code-val { color: #ce9178; }
+    .logo-text {
+        font-size: 15px;
+        font-weight: 600;
+    }
 
-/* buttons */
-.btn { height: 38px; padding: 0 18px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: var(--radius); border: 1px solid transparent; transition: all .15s; font-family: inherit; }
-.btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
-.btn-primary:hover { background: #234d32; }
-.btn-outline { background: transparent; border-color: var(--border2); color: var(--text); }
-.btn-outline:hover { background: var(--surface2); }
-.btn-ghost { background: transparent; border-color: transparent; color: var(--text2); }
-.btn-ghost:hover { background: var(--surface2); color: var(--text); }
-.btn-danger { background: transparent; border-color: #e8b4b0; color: var(--high); }
-.btn-danger:hover { background: var(--high-bg); }
-.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .logo-sub {
+        font-size: 12px;
+        color: var(--text2);
+        margin-left: 4px;
+    }
 
-/* msg */
-.msg { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-.msg-ok { background: var(--safe-bg); border: 1px solid var(--safe-border); color: var(--safe); }
-.msg-err { background: var(--high-bg); border: 1px solid var(--high-border); color: var(--high); }
-.msg-warn { background: var(--mid-bg); border: 1px solid var(--mid-border); color: var(--mid); }
-.msg svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .grade-badge {
+        margin-left: auto;
+        font-size: 12px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background: var(--accent-light);
+        color: var(--accent);
+        font-weight: 500;
+        border: 1px solid #c8dece;
+    }
 
-/* data table */
-.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
-table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
-th { padding: 9px 12px; background: var(--surface2); font-weight: 600; color: var(--text2); text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); white-space: nowrap; font-size: 12px; }
-th:last-child { border-right: none; }
-td { padding: 7px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; }
-td:last-child { border-right: none; }
-tr:last-child td { border-bottom: none; }
-td.sid { font-family: 'DM Mono', monospace; font-weight: 500; background: var(--surface2); font-size: 12px; white-space: nowrap; }
-.chip { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 500; }
-.chip-room { background: #eef3ff; color: #3b5bdb; border: 1px solid #c5d0fc; }
-.chip-own { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+    nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        overflow-x: auto;
+    }
 
-/* summary */
-.summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-.scard { padding: 16px; border-radius: var(--radius); text-align: center; border: 1px solid transparent; }
-.scard .num { font-size: 28px; font-weight: 600; line-height: 1; margin-bottom: 5px; }
-.scard .lbl { font-size: 12px; font-weight: 500; }
-.sc-total { background: var(--surface2); border-color: var(--border); }
-.sc-total .num { color: var(--text); } .sc-total .lbl { color: var(--text2); }
-.sc-inf { background: var(--high-bg); border-color: var(--high-border); }
-.sc-inf .num { color: var(--high); } .sc-inf .lbl { color: var(--high); }
-.sc-high { background: var(--high-bg); border-color: var(--high-border); }
-.sc-high .num { color: var(--high); } .sc-high .lbl { color: var(--high); }
-.sc-mid { background: var(--mid-bg); border-color: var(--mid-border); }
-.sc-mid .num { color: var(--mid); } .sc-mid .lbl { color: var(--mid); }
-.sc-safe { background: var(--safe-bg); border-color: var(--safe-border); }
-.sc-safe .num { color: var(--safe); } .sc-safe .lbl { color: var(--safe); }
+    .nav-tab {
+        padding: 14px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--text2);
+        border: none;
+        background: none;
+        border-bottom: 2px solid transparent;
+        transition: all .15s;
+        position: relative;
+        top: 1px;
+        font-family: inherit;
+        white-space: nowrap;
+    }
 
-/* infected bar */
-.inf-bar { background: var(--high-bg); border: 1px solid var(--high-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 1.5rem; display: flex; gap: 14px; align-items: flex-start; }
-.inf-pill { background: var(--high); color: white; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; margin-top: 3px; }
-.inf-sid { font-size: 18px; font-weight: 600; color: var(--high); font-family: 'DM Mono', monospace; margin-bottom: 5px; }
-.inf-schedule { font-size: 12px; color: var(--mid); line-height: 1.9; }
+    .nav-tab:hover {
+        color: var(--text);
+    }
 
-/* risk sections */
-.risk-section { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 14px; box-shadow: var(--shadow); }
-.risk-header { padding: 12px 18px; display: flex; align-items: center; gap: 10px; }
-.risk-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-.risk-title { font-size: 15px; font-weight: 600; }
-.risk-cnt { margin-left: auto; font-size: 13px; }
-.rh-high { background: var(--high-bg); border-bottom: 1px solid var(--high-border); }
-.rh-high .risk-pill { background: var(--high); color: white; }
-.rh-high .risk-title { color: var(--high); }
-.rh-high .risk-cnt { color: #a03025; }
-.rh-mid { background: var(--mid-bg); border-bottom: 1px solid var(--mid-border); }
-.rh-mid .risk-pill { background: var(--mid); color: white; }
-.rh-mid .risk-title { color: var(--mid); }
-.rh-mid .risk-cnt { color: #9a5008; }
-.risk-body { padding: 14px 18px; background: var(--surface); }
-.student-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.stu-card { padding: 10px 14px; border-radius: var(--radius); border: 1px solid; min-width: 155px; }
-.stu-card .stsid { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 13px; }
-.stu-card .stcnt { font-size: 12px; margin-top: 3px; font-weight: 500; }
-.stu-card .stdetail { font-size: 11px; margin-top: 5px; line-height: 1.7; opacity: .8; }
-.bar-bg { height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 6px; overflow: hidden; }
-.bar-fill-h { height: 4px; background: var(--high); border-radius: 2px; }
-.bar-fill-m { height: 4px; background: var(--mid); border-radius: 2px; }
-.sc-h { background: var(--high-bg); border-color: var(--high-border); }
-.sc-h .stsid { color: var(--high); } .sc-h .stcnt { color: var(--high); }
-.sc-m { background: var(--mid-bg); border-color: var(--mid-border); }
-.sc-m .stsid { color: var(--mid); } .sc-m .stcnt { color: var(--mid); }
+    .nav-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+    }
 
-/* safe */
-.safe-section { background: var(--safe-bg); border: 1px solid var(--safe-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 14px; }
-.safe-header { font-size: 14px; font-weight: 600; color: var(--safe); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
-.safe-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.safe-tag { font-size: 12px; padding: 3px 10px; border-radius: 5px; background: white; color: var(--safe); border: 1px solid var(--safe-border); font-family: 'DM Mono', monospace; }
+    main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
 
-/* threshold */
-.threshold-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 16px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 1rem; font-size: 13px; color: var(--text2); }
-.threshold-bar input[type=number] { width: 52px; height: 30px; text-align: center; font-size: 14px; font-weight: 500; border: 1px solid var(--border2); border-radius: 6px; font-family: inherit; }
-.threshold-bar label { font-weight: 500; color: var(--text); }
-.thr-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-.thr-high { background: var(--high); }
-.thr-mid { background: var(--mid); }
+    .panel {
+        display: none;
+        animation: fadeIn .2s ease;
+    }
 
-/* analyze input */
-.analyze-input { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
-.analyze-input input { height: 42px; padding: 0 14px; font-size: 15px; font-family: 'DM Mono', monospace; font-weight: 500; border: 1.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); width: 200px; transition: border-color .15s; }
-.analyze-input input:focus { outline: none; border-color: var(--accent); }
-.analyze-input .btn-primary { height: 42px; padding: 0 24px; font-size: 14px; }
+    .panel.active {
+        display: block;
+    }
 
-/* show more */
-.show-more { display: flex; align-items: center; gap: 6px; padding: 8px 0 2px; font-size: 13px; color: var(--text2); cursor: pointer; width: fit-content; }
-.show-more:hover { color: var(--text); }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform:translateY(6px)
+        }
 
-/* empty */
-.empty { padding: 3rem; text-align: center; color: var(--text3); }
-.empty svg { width: 40px; height: 40px; stroke: var(--border2); margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
-.empty p { font-size: 14px; }
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
 
-/* export btn */
-.export-bar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+    .page-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
 
-/* responsive */
-@media (max-width: 600px) {
-  .summary-grid { grid-template-columns: repeat(3, 1fr); }
-  main { padding: 1rem; }
-  header { padding: 0 1rem; }
-  nav { padding: 0 1rem; }
-  .nav-tab { padding: 12px 14px; font-size: 13px; }
-}
-</style>
+    .page-desc {
+        font-size: 14px;
+        color: var(--text2);
+        margin-bottom: 1.5rem;
+    }
+
+    .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: var(--shadow);
+    }
+
+    .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text2);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 12px;
+    }
+
+    .btn {
+        height: 38px;
+        padding: 0 18px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: var(--radius);
+        border: 1px solid transparent;
+        transition: all .15s;
+        font-family: inherit;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #234d32;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border-color: var(--border2);
+        color: var(--text);
+    }
+
+    .btn-outline:hover {
+        background: var(--surface2);
+    }
+
+    .btn-danger {
+        background: transparent;
+        border-color: #e8b4b0;
+        color: var(--high);
+    }
+
+    .btn-danger:hover {
+        background: var(--high-bg);
+    }
+
+    .btn-purple {
+        background: #7c3aed;
+        color: white;
+        border: none;
+    }
+
+    .btn-purple:hover {
+        background: #6d28d9;
+    }
+
+    .btn-sm {
+        height: 32px;
+        padding: 0 12px;
+        font-size: 13px;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .msg {
+        padding: 10px 14px;
+        border-radius: var(--radius);
+        font-size: 13px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .msg-ok {
+        background: var(--safe-bg);
+        border: 1px solid var(--safe-border);
+        color: var(--safe);
+    }
+
+    .msg-err {
+        background: var(--high-bg);
+        border: 1px solid var(--high-border);
+        color: var(--high);
+    }
+
+    .msg-warn {
+        background: var(--mid-bg);
+        border: 1px solid var(--mid-border);
+        color: var(--mid);
+    }
+
+    .msg-purple {
+        background: #f0eafd;
+        border: 1px solid #d4b8f5;
+        color: #6a1bcc;
+    }
+
+    .day-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 1.25rem;
+    }
+
+    .day-card {
+        border: 1.5px dashed var(--border2);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all .2s;
+        background: var(--surface);
+        position: relative;
+    }
+
+    .day-card:hover {
+        border-color: var(--accent-mid);
+        background: var(--accent-light);
+    }
+
+    .day-card.loaded {
+        border-style: solid;
+        border-color: var(--accent-mid);
+        background: var(--accent-light);
+    }
+
+    .day-label {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .day-icon {
+        font-size: 24px;
+        margin-bottom: 6px;
+    }
+
+    .day-status {
+        font-size: 12px;
+        color: var(--text3);
+    }
+
+    .day-card.loaded .day-status {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+    .day-check {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 18px;
+        height: 18px;
+        background: var(--accent);
+        border-radius: 50%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .day-card.loaded .day-check {
+        display: flex;
+    }
+
+    .day-check svg {
+        width: 10px;
+        height: 10px;
+        stroke: white;
+        stroke-width: 3;
+        fill: none;
+    }/* 강의실 설정 */
+    .grade-range-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .grade-range-card {
+        background: var(--surface2);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+    }
+
+    .grade-range-card label {
+        font-size: 13px;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .grade-range-card .gr-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .grade-range-card input[type=number] {
+        width: 50px;
+        height: 32px;
+        text-align: center;
+        font-size: 14px;
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        font-family: inherit;
+    }
+
+    .grade-range-card .gr-sep {
+        font-size: 13px;
+        color: var(--text2);
+    }
+
+    .special-room-row {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        background: var(--surface2);
+        border-radius: var(--radius);
+    }
+
+    .special-room-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .special-room-item input[type=checkbox] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--accent);
+    }
+
+    .custom-room-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+        min-height: 20px;
+    }
+
+    .custom-room-tag {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        background: var(--accent-light);
+        border: 1px solid #c8dece;
+        border-radius: 6px;
+        font-size: 13px;
+        color: var(--accent);
+    }
+
+    .custom-room-tag button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--accent);
+        font-size: 15px;
+        line-height: 1;
+        padding: 0;
+    }
+
+    .custom-room-add {
+        display: flex;
+        gap: 8px;
+    }
+
+    .custom-room-add input {
+        flex: 1;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 14px;
+        border: 1.5px solid var(--border2);
+        border-radius: var(--radius);
+        font-family: inherit;
+    }
+
+    .room-preview {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--text2);
+        line-height: 1.8;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .room-preview-tag {
+        display: inline-block;
+        padding: 2px 8px;
+        margin: 2px;
+        background: var(--surface2);
+        border-radius: 4px;
+        font-size: 11px;
+    }/* 잠복기 */
+    .disease-input-box {
+        background: var(--surface2);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .disease-input-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .disease-input-row input[type=text] {
+        flex: 1;
+        min-width: 160px;
+        height: 42px;
+        padding: 0 14px;
+        font-size: 15px;
+        border: 1.5px solid var(--border2);
+        border-radius: var(--radius);
+        font-family: inherit;
+        background: var(--surface);
+    }
+
+    .disease-input-row input:focus {
+        outline: none;
+        border-color: #7c3aed;
+    }
+
+    .disease-info-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        font-size: 13px;
+        line-height: 1.8;
+        color: var(--text2);
+        min-height: 60px;
+    }
+
+    .disease-info-box.loading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text3);
+    }
+
+    .disease-info-box.loaded {
+        color: var(--text);
+    }
+
+    .incub-edit-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 12px 14px;
+        background: var(--surface2);
+        border-radius: var(--radius);
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+    .incub-edit-row input[type=number] {
+        width: 60px;
+        height: 32px;
+        text-align: center;
+        font-size: 14px;
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        font-family: inherit;
+    }
+
+    .incub-edit-row label {
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .inf-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .inf-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 10px 14px;
+        background: var(--high-bg);
+        border: 1px solid var(--high-border);
+        border-radius: var(--radius);
+    }
+
+    .inf-row .sid-tag {
+        font-family: 'DM Mono', monospace;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--high);
+        flex: 1;
+    }
+
+    .inf-row .date-tag {
+        font-size: 13px;
+        color: var(--mid);
+    }
+
+    .inf-row .del-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--high);
+        font-size: 18px;
+        line-height: 1;
+        padding: 2px 6px;
+    }
+
+    .add-inf-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .add-inf-row input[type=text] {
+        height: 38px;
+        padding: 0 12px;
+        font-size: 14px;
+        font-family: 'DM Mono', monospace;
+        border: 1.5px solid var(--border2);
+        border-radius: var(--radius);
+        background: var(--surface);
+        width: 160px;
+    }
+
+    .add-inf-row input[type=date] {
+        height: 38px;
+        padding: 0 10px;
+        font-size: 14px;
+        border: 1.5px solid var(--border2);
+        border-radius: var(--radius);
+        font-family: inherit;
+        background: var(--surface);
+    }
+
+    .add-inf-row input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .weight-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: 700;
+        margin-left: 6px;
+        flex-shrink: 0;
+    }
+
+    .wb-1 {
+        background: #FAEEDA;
+        color: #854F0B;
+        border: 1px solid #FAC775;
+    }
+
+    .wb-2 {
+        background: #FAECE7;
+        color: #993C1D;
+        border: 1px solid #F5C4B3;
+    }
+
+    .wb-3 {
+        background: #c0392b;
+        color: white;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .scard {
+        padding: 16px;
+        border-radius: var(--radius);
+        text-align: center;
+        border: 1px solid transparent;
+    }
+
+    .scard .num {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .scard .lbl {
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .sc-total {
+        background: var(--surface2);
+        border-color: var(--border);
+    }
+
+    .sc-total .num {
+        color: var(--text);
+    }
+
+    .sc-total .lbl {
+        color: var(--text2);
+    }
+
+    .sc-inf {
+        background: var(--high-bg);
+        border-color: var(--high-border);
+    }
+
+    .sc-inf .num, .sc-inf .lbl {
+        color: var(--high);
+    }
+
+    .sc-high {
+        background: var(--high-bg);
+        border-color: var(--high-border);
+    }
+
+    .sc-high .num, .sc-high .lbl {
+        color: var(--high);
+    }
+
+    .sc-mid {
+        background: var(--mid-bg);
+        border-color: var(--mid-border);
+    }
+
+    .sc-mid .num, .sc-mid .lbl {
+        color: var(--mid);
+    }
+
+    .sc-safe {
+        background: var(--safe-bg);
+        border-color: var(--safe-border);
+    }
+
+    .sc-safe .num, .sc-safe .lbl {
+        color: var(--safe);
+    }
+
+    .inf-bar {
+        background: var(--high-bg);
+        border: 1px solid var(--high-border);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px;
+        margin-bottom: 10px;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+    }
+
+    .inf-pill {
+        background: var(--high);
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        white-space: nowrap;
+        margin-top: 3px;
+    }
+
+    .inf-sid {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--high);
+        font-family: 'DM Mono', monospace;
+        margin-bottom: 3px;
+    }
+
+    .inf-meta {
+        font-size: 12px;
+        color: var(--mid);
+    }
+
+    .incub-bar {
+        background: #f0eafd;
+        border: 1px solid #d4b8f5;
+        border-radius: var(--radius-lg);
+        padding: 12px 16px;
+        margin-bottom: 1.25rem;
+        font-size: 13px;
+        color: #6a1bcc;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .incub-pill {
+        background: #7c3aed;
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .risk-section {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 14px;
+        box-shadow: var(--shadow);
+    }
+
+    .risk-header {
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .risk-pill {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .risk-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .risk-cnt {
+        margin-left: auto;
+        font-size: 13px;
+    }
+
+    .rh-high {
+        background: var(--high-bg);
+        border-bottom: 1px solid var(--high-border);
+    }
+
+    .rh-high .risk-pill {
+        background: var(--high);
+        color: white;
+    }
+
+    .rh-high .risk-title {
+        color: var(--high);
+    }
+
+    .rh-mid {
+        background: var(--mid-bg);
+        border-bottom: 1px solid var(--mid-border);
+    }
+
+    .rh-mid .risk-pill {
+        background: var(--mid);
+        color: white;
+    }
+
+    .rh-mid .risk-title {
+        color: var(--mid);
+    }
+
+    .risk-body {
+        padding: 14px 18px;
+        background: var(--surface);
+    }
+
+    .student-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .stu-card {
+        padding: 10px 14px;
+        border-radius: var(--radius);
+        border: 1px solid;
+        min-width: 165px;
+    }
+
+    .stu-sid {
+        font-family: 'DM Mono', monospace;
+        font-weight: 500;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .stu-cnt {
+        font-size: 12px;
+        margin-top: 3px;
+        font-weight: 500;
+    }
+
+    .stu-detail {
+        font-size: 11px;
+        margin-top: 5px;
+        line-height: 1.7;
+        opacity: .8;
+    }
+
+    .sc-h {
+        background: var(--high-bg);
+        border-color: var(--high-border);
+    }
+
+    .sc-h .stu-sid {
+        color: var(--high);
+    }
+
+    .sc-h .stu-cnt {
+        color: var(--high);
+    }
+
+    .sc-m {
+        background: var(--mid-bg);
+        border-color: var(--mid-border);
+    }
+
+    .sc-m .stu-sid {
+        color: var(--mid);
+    }
+
+    .sc-m .stu-cnt {
+        color: var(--mid);
+    }
+
+    .safe-section {
+        background: var(--safe-bg);
+        border: 1px solid var(--safe-border);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px;
+        margin-bottom: 14px;
+    }
+
+    .safe-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .safe-tag {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 5px;
+        background: white;
+        color: var(--safe);
+        border: 1px solid var(--safe-border);
+        font-family: 'DM Mono', monospace;
+    }
+
+    .empty {
+        padding: 3rem;
+        text-align: center;
+        color: var(--text3);
+    }
+
+    .empty svg {
+        width: 40px;
+        height: 40px;
+        stroke: var(--border2);
+        margin: 0 auto 12px;
+        display: block;
+    }
+
+    .empty p {
+        font-size: 14px;
+    }
+
+    .export-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 12px;
+        gap: 8px;
+    }
+
+    .threshold-bar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 12px 16px;
+        background: var(--surface2);
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+        font-size: 13px;
+    }
+
+    .threshold-bar input[type=number] {
+        width: 52px;
+        height: 30px;
+        text-align: center;
+        font-size: 14px;
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        font-family: inherit;
+    }
+
+    .class-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+    }
+
+    .class-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px;
+        box-shadow: var(--shadow);
+        transition: transform .15s;
+    }
+
+    .class-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .class-name {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .class-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .class-bar-bg {
+        flex: 1;
+        height: 6px;
+        background: var(--surface2);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .class-bar-h {
+        height: 6px;
+        background: var(--high);
+        border-radius: 3px;
+    }
+
+    .class-bar-m {
+        height: 6px;
+        background: var(--mid);
+        border-radius: 3px;
+    }
+
+    .class-stat {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .class-stat-item {
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .csi-high {
+        background: var(--high-bg);
+        color: var(--high);
+        border: 1px solid var(--high-border);
+    }
+
+    .csi-mid {
+        background: var(--mid-bg);
+        color: var(--mid);
+        border: 1px solid var(--mid-border);
+    }
+
+    .csi-safe {
+        background: var(--safe-bg);
+        color: var(--safe);
+        border: 1px solid var(--safe-border);
+    }
+
+    .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: 700;
+        margin-right: 4px;
+    }
+
+    .rank-1 {
+        background: #FFD700;
+        color: #7a5c00;
+    }
+
+    .rank-2 {
+        background: #C0C0C0;
+        color: #555;
+    }
+
+    .rank-3 {
+        background: #cd7f32;
+        color: #fff;
+    }
+
+    .rank-n {
+        background: var(--surface2);
+        color: var(--text2);
+    }
+
+    .grade-section-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 18px 0 10px;
+        color: var(--accent);
+    }
+
+    .api-key-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .api-key-row input {
+        flex: 1;
+        height: 38px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-family: 'DM Mono', monospace;
+        border: 1.5px solid var(--border2);
+        border-radius: var(--radius);
+        background: var(--surface);
+    }
+
+    .api-key-row input:focus {
+        outline: none;
+        border-color: #7c3aed;
+    }
+
+    .msg-template {
+        background: #1a1a2e;
+        border-radius: var(--radius-lg);
+        padding: 16px 18px;
+        font-size: 13.5px;
+        color: #e2e8f0;
+        line-height: 1.9;
+        margin-bottom: 10px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        min-height: 160px;
+        border: 1px solid #2d2d4e;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .msg-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .msg-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text2);
+    }
+
+    .loading-dots {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .loading-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #7c3aed;
+        animation: bounce .8s infinite;
+    }
+
+    .loading-dots span:nth-child(2) {
+        animation-delay: .15s;
+    }
+
+    .loading-dots span:nth-child(3) {
+        animation-delay: .3s;
+    }
+
+    @keyframes bounce {
+        0%, 80%, 100% {
+            transform:translateY(0)
+        }
+
+        40% {
+            transform: translateY(-6px)
+        }
+    }
+
+    .school-input {
+        width: 100%;
+        height: 38px;
+        padding: 0 12px;
+        font-size: 14px;
+        border: 1.5px solid var(--border2);
+        border-radius: var(--radius);
+        font-family: inherit;
+        margin-bottom: 12px;
+    }
+
+    .school-input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .copy-btn {
+        height: 32px;
+        padding: 0 14px;
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: var(--radius);
+        border: none;
+        background: #7c3aed;
+        color: white;
+        font-family: inherit;
+    }
+
+    .copy-btn:hover {
+        background: #6d28d9;
+    }
+
+    .copy-ok {
+        color: var(--safe);
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .nice-btn {
+        height: 34px;
+        padding: 0 14px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: var(--radius);
+        border: 1.5px solid #003876;
+        background: #fff;
+        color: #003876;
+        font-family: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .15s;
+    }
+
+    .nice-btn:hover {
+        background: #003876;
+        color: white;
+    }
+
+    .nice-logo-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        background: #003876;
+        color: white;
+        font-size: 9px;
+        font-weight: 700;
+        border-radius: 4px;
+    }
+
+    .nice-btn:hover .nice-logo-badge {
+        background: white;
+        color: #003876;
+    }
+
+    .nice-ok {
+        color: var(--safe);
+        font-size: 12px;
+        margin-top: 6px;
+        display: none;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .nice-ok.show {
+        display: flex;
+    }
+
+    .nice-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 700px) {
+        .day-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        main {
+            padding: 1rem;
+        }
+
+        header, nav {
+            padding: 0 1rem;
+        }
+
+        .grade-range-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .special-room-row {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 12px;
+            font-size: 13px;
+        }
+
+        .header .logo-text {
+            font-size: 13px;
+        }
+
+        .threshold-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .incub-edit-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .nice-row {
+            justify-content: flex-start;
+        }
+
+        .msg-header-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .api-key-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .api-key-row input {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .logo-sub {
+            display: none;
+        }
+
+        .grade-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+        }
+    }
+    </style>
 </head>
 <body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
+                </svg>
+            </div>
+            <span class="logo-text">감염병 접촉자 추적 시스템</span>
+            <span class="logo-sub">전학년 · 학교맞춤형</span>
+        </div>
+        <span class="grade-badge">v6.0</span>
+    </header>
+    <nav>
+        <button class="nav-tab active" onclick="switchTab('setup',this)">🏫 강의실 설정</button>
+        <button class="nav-tab" onclick="switchTab('upload',this)">📁 시간표</button>
+        <button class="nav-tab" onclick="switchTab('analyze',this)">🔍 접촉자 분석</button>
+        <button class="nav-tab" onclick="switchTab('class',this)">📊 반별 현황</button>
+        <button class="nav-tab" onclick="switchTab('message',this)">💬 AI 문자 생성</button>
+    </nav>
+    <main>
 
-<header>
-  <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
-    </div>
-    <span class="logo-text">접촉자 추적 시스템</span>
-    <span class="logo-sub">감염병 대응</span>
-  </div>
-  <div class="header-right">
-    <span class="grade-badge">3학년 전용</span>
-  </div>
-</header>
+        <!-- 강의실 설정 -->
+        <div class="panel active" id="panel-setup">
+            <div class="page-title">강의실 설정</div>
+            <div class="page-desc">학교 구조에 맞게 학년별 반 범위와 특별실을 설정하세요. 시간표 업로드 전에 먼저 설정해야 합니다.</div>
 
-<nav>
-  <button class="nav-tab active" onclick="switchTab('upload', this)">📁 시간표 업로드</button>
-  <button class="nav-tab" onclick="switchTab('preview', this)">📋 데이터 확인</button>
-  <button class="nav-tab" onclick="switchTab('analyze', this)">🔍 위험군 분석</button>
-</nav>
+            <div class="card">
+                <div class="card-title">① 학년별 반 범위</div>
+                <div class="grade-range-grid">
+                    <div class="grade-range-card">
+                        <label>1학년</label>
+                        <div class="gr-row">
+                            <input type="number" id="g1-min" value="0" min="0" max="30">
+                            <span class="gr-sep">~</span>
+                            <input type="number" id="g1-max" value="0" min="0" max="30">
+                            <span class="gr-sep">반</span>
+                        </div>
+                    </div>
+                    <div class="grade-range-card">
+                        <label>2학년</label>
+                        <div class="gr-row">
+                            <input type="number" id="g2-min" value="0" min="0" max="30">
+                            <span class="gr-sep">~</span>
+                            <input type="number" id="g2-max" value="0" min="0" max="30">
+                            <span class="gr-sep">반</span>
+                        </div>
+                    </div>
+                    <div class="grade-range-card">
+                        <label>3학년</label>
+                        <div class="gr-row">
+                            <input type="number" id="g3-min" value="1" min="0" max="30">
+                            <span class="gr-sep">~</span>
+                            <input type="number" id="g3-max" value="11" min="0" max="30">
+                            <span class="gr-sep">반</span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size:12px;color:var(--text2);">💡 해당 학년이 없으면 0~0으로 두세요. 예: 3학년만 사용 시 1,2학년은 0~0.</p>
+            </div>
 
-<main>
+            <div class="card">
+                <div class="card-title">② 공통 특별실</div>
+                <div class="special-room-row">
+                    <label class="special-room-item">
+                        <input type="checkbox" id="sp-music" checked>
+                         🎵 음악실
+                    </label>
+                    <label class="special-room-item">
+                        <input type="checkbox" id="sp-art" checked>
+                         🎨 미술실
+                    </label>
+                    <label class="special-room-item">
+                        <input type="checkbox" id="sp-gym" checked>
+                         🏃 강당/체육관
+                    </label>
+                </div>
+            </div>
 
-  <!-- 업로드 탭 -->
-  <div class="panel active" id="panel-upload">
-    <div class="page-title">시간표 업로드</div>
-    <div class="page-desc">CSV 파일로 학생 시간표를 등록하세요. 한 번 업로드하면 위험군 분석 탭에서 바로 사용할 수 있습니다.</div>
+            <div class="card">
+                <div class="card-title">③ 기타 특별실 (직접 추가)</div>
+                <div class="custom-room-list" id="custom-room-list"></div>
+                <div class="custom-room-add">
+                    <input type="text" id="custom-room-input" placeholder="예: 정보실, 다목적실, 도서실..." onkeydown="if(event.key==='Enter'){addCustomRoom();event.preventDefault();}">
+                    <button class="btn btn-outline btn-sm" onclick="addCustomRoom()">+ 추가</button>
+                </div>
+            </div>
 
-    <div class="card">
-      <div class="card-title">CSV 파일 형식</div>
-      <div class="code-block"><span class="code-comment"># 첫 번째 행: 헤더 (고정)</span>
-<span class="code-key">학번</span>,<span class="code-val">0교시</span>,<span class="code-val">1교시</span>,<span class="code-val">2교시</span>,<span class="code-val">3교시</span>,<span class="code-val">4교시</span>,<span class="code-val">5교시</span>,<span class="code-val">6교시</span>,<span class="code-val">7교시</span>
-<span class="code-key">30101</span>,<span class="code-val">3-1</span>,<span class="code-val">3-1</span>,<span class="code-val">음악실</span>,<span class="code-val">3-1</span>,<span class="code-val">정보실</span>,<span class="code-val">3-1</span>,<span class="code-val">3-1</span>,<span class="code-val">체육관</span>
-<span class="code-key">30201</span>,<span class="code-val">3-2</span>,<span class="code-val">3-2</span>,<span class="code-val">3-2</span>,<span class="code-val">음악실</span>,<span class="code-val">3-2</span>,<span class="code-val">미술실</span>,<span class="code-val">3-2</span>,<span class="code-val">3-2</span></div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.8;">
-        <strong style="color:var(--text)">사용 가능한 강의실:</strong><br>
-        반 교실: 3-1, 3-2, 3-3, 3-4, 3-5, 3-6, 3-7, 3-8, 3-9, 3-10, 3-11<br>
-        특별실: 다목적실, 정보실, 음악실, 미술실, 체육관
-      </div>
-    </div>
+            <div class="card">
+                <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;" onclick="applyRoomSetup()">✅ 강의실 설정 적용</button>
+                <div class="room-preview" id="room-preview" style="display:none;"></div>
+            </div>
 
-    <div class="upload-zone" id="upload-zone"
-      onclick="document.getElementById('file-input').click()"
-      ondragover="ev(event,'over')" ondragleave="ev(event,'leave')" ondrop="ev(event,'drop')">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-      </svg>
-      <div class="upload-title">CSV 파일을 여기에 끌어다 놓거나 클릭하여 선택</div>
-      <div class="upload-sub">UTF-8 또는 EUC-KR 인코딩 지원 · .csv 파일만 가능</div>
-    </div>
-    <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFile(this.files[0])">
+            <div class="msg msg-purple" style="font-size:12px;">
+                💡 입력한 시간표와 설정은 이 브라우저에 자동 저장됩니다. 새로고침해도 유지되지만, API 키는 보안을 위해 매번 새로 입력해야 합니다.
+              </div>
+        </div>
 
-    <div id="upload-msg" style="margin-top:12px;"></div>
+        <!-- 시간표 업로드 -->
+        <div class="panel" id="panel-upload">
+            <div class="page-title">요일별 시간표 업로드</div>
+            <div class="page-desc">요일마다 CSV 파일을 업로드하세요. 먼저 강의실 설정을 완료해주세요.</div>
+            <div class="card" id="csv-format-card">
+                <div class="card-title">CSV 형식 — 학번, 0교시~7교시</div>
+                <div id="csv-format-preview" style="background:#1e1e1e;border-radius:var(--radius);padding:12px 16px;font-family:'DM Mono',monospace;font-size:12.5px;color:#d4d4d4;overflow-x:auto;margin-bottom:10px;line-height:1.7;">먼저 강의실 설정을 완료해주세요.</div>
+                <p id="room-list-text" style="font-size:12px;color:var(--text2)"></p>
+            </div>
+            <div class="day-grid" id="day-grid"></div>
+            <div id="upload-msg"></div>
+            <div class="btn-row" style="margin-top:10px;">
+                <button class="btn btn-outline" onclick="loadSample()">🧪 샘플 데이터로 테스트</button>
+                <button class="btn btn-danger btn-sm" onclick="clearAll()" style="margin-left:auto;">전체 초기화</button>
+            </div>
+        </div>
 
-    <div class="btn-row" style="margin-top:14px;">
-      <button class="btn btn-outline" onclick="loadSample()">🧪 샘플 데이터로 테스트 (253명)</button>
-      <button class="btn btn-danger btn-sm" onclick="clearAll()" style="margin-left:auto;">초기화</button>
-    </div>
-  </div>
+        <!-- 접촉자 분석 -->
+        <div class="panel" id="panel-analyze">
+            <div class="page-title">접촉자 분석</div>
+            <div class="page-desc">감염병 이름을 입력하면 AI가 잠복기를 자동으로 설정합니다.</div>
+            <div class="card">
+                <div class="card-title">① 감염병 설정</div>
+                <div class="msg msg-purple" style="margin-bottom:12px;">💡 API 키가 설정된 경우 AI가 잠복기를 자동으로 검색합니다. 직접 입력도 가능합니다.</div>
+                <div class="disease-input-box">
+                    <div class="disease-input-row">
+                        <input type="text" id="disease-input" placeholder="감염병 이름 입력 (예: 수두, 홍역, 결핵...)" onkeydown="if(event.key==='Enter')searchDisease()">
+                        <button class="btn btn-purple" onclick="searchDisease()" id="search-btn">🔍 AI 검색</button>
+                    </div>
+                    <div class="disease-info-box" id="disease-info">감염병 이름을 입력하고 AI 검색을 누르면 잠복기가 자동으로 설정됩니다.</div>
+                </div>
+                <div class="incub-edit-row">
+                    <label>잠복기 최소</label>
+                    <input type="number" id="min-day" value="2" min="1" max="60">
+                     일
+                          
+                    <label style="margin-left:8px;">최대</label>
+                    <input type="number" id="max-day" value="14" min="1" max="60">
+                     일
+                          
+                    <span style="font-size:12px;color:var(--text3);margin-left:4px;">(AI 검색 후 수동 수정 가능)</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">② 감염 학생 목록</div>
+                <div class="inf-list" id="inf-list">
+                    <div style="font-size:13px;color:var(--text3);padding:8px 0;">아직 추가된 감염자가 없습니다.</div>
+                </div>
+                <div class="add-inf-row">
+                    <input type="text" id="new-inf-id" placeholder="학번 (예: 30101)" maxlength="10">
+                    <input type="date" id="new-inf-date">
+                    <button class="btn btn-primary" onclick="addInfected()">+ 추가</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">③ 위험군 분류 기준</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">2명 이상 감염자와 접촉 시 위험도 자동 한 단계 상승</div>
+                <div class="threshold-bar">
+                    <span style="color:var(--high);font-weight:500;">🔴 고위험</span>
+                    <input type="number" id="thr-high" value="3" min="1" max="40">
+                     교시 이상 &nbsp;|&nbsp;
+                          
+                    <span style="color:var(--mid);font-weight:500;">🟠 중위험</span>
+                    <input type="number" id="thr-mid" value="1" min="1" max="40">
+                     교시 이상
+                        
+                </div>
+                <button class="btn btn-primary" style="width:100%;height:44px;font-size:15px;" onclick="doAnalyze()">🔍 분석 시작</button>
+            </div>
+            <div id="analyze-result">
+                <div class="empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <p>감염병을 설정하고 분석을 시작하세요.</p>
+                </div>
+            </div>
+        </div>
 
-  <!-- 데이터 확인 탭 -->
-  <div class="panel" id="panel-preview">
-    <div class="page-title">데이터 확인</div>
-    <div class="page-desc">업로드된 시간표를 확인합니다. 최대 50명까지 미리보기로 표시됩니다.</div>
-    <div id="preview-content">
-      <div class="empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <p>먼저 시간표 파일을 업로드해주세요.</p>
-      </div>
-    </div>
-  </div>
+        <!-- 반별 현황 -->
+        <div class="panel" id="panel-class">
+            <div class="page-title">반별 위험도 현황</div>
+            <div class="page-desc">분석 결과를 학년·반별로 집계한 위험도 순위입니다.</div>
+            <div id="class-result">
+                <div class="empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <p>먼저 접촉자 분석을 실행해주세요.</p>
+                </div>
+            </div>
+        </div>
 
-  <!-- 분석 탭 -->
-  <div class="panel" id="panel-analyze">
-    <div class="page-title">위험군 분석</div>
-    <div class="page-desc">감염 학생의 학번을 입력하면 같은 강의실에서 수업한 횟수를 기준으로 위험군을 자동 분류합니다.</div>
+        <!-- AI 문자 생성 -->
+        <div class="panel" id="panel-message">
+            <div class="page-title">AI 문자 자동 생성</div>
+            <div class="page-desc">입력한 감염병 정보를 바탕으로 Claude AI가 학부모 안내 문자를 자동으로 작성합니다.</div>
+            <div class="card">
+                <div class="card-title">🔑 Anthropic API 키</div>
+                <div class="api-key-row">
+                    <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off">
+                    <button class="btn btn-purple" onclick="saveApiKey()">저장</button>
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('api-key-input').type=document.getElementById('api-key-input').type==='password'?'text':'password'">보기</button>
+                </div>
+                <div id="api-key-status" style="font-size:12px;color:var(--text3);">API 키를 입력하면 AI가 감염병 정보를 검색하고 문자를 작성합니다. 키는 이 세션에서만 유지됩니다.</div>
+            </div>
+            <div class="card">
+                <div class="card-title">학교명</div>
+                <input type="text" class="school-input" id="school-name" placeholder="학교명을 입력하세요 (예: 백운고등학교)">
+                <button class="btn btn-purple" style="width:100%;height:42px;font-size:14px;" onclick="generateAllMessages()">✨ AI로 문자 생성하기</button>
+            </div>
+            <div id="message-result">
+                <div class="empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                    </svg>
+                    <p>먼저 접촉자 분석 탭에서 분석을 실행해주세요.</p>
+                </div>
+            </div>
+        </div>
 
-    <div class="card">
-      <div class="analyze-input">
-        <input type="text" id="inf-input" placeholder="학번 입력 (예: 30101)" maxlength="10">
-        <button class="btn btn-primary" onclick="doAnalyze()">위험군 분석 →</button>
-      </div>
-      <div class="threshold-bar">
-        <span><span class="thr-dot thr-high"></span><label>고위험군</label> 기준:</span>
-        <input type="number" id="thr-high" value="3" min="1" max="8"> 교시 이상
-        <span style="margin-left:8px;"><span class="thr-dot thr-mid"></span><label>중위험군</label> 기준:</span>
-        <input type="number" id="thr-mid" value="1" min="1" max="8"> 교시 이상
-        <span style="color:var(--text3);font-size:12px;">(0~7교시 총 8교시 기준)</span>
-      </div>
-    </div>
+    </main>
+    <input type="file" id="file-input" accept=".csv" style="display:none">
+    <script>
+    const DAYS = ['월요일', '화요일', '수요일', '목요일', '금요일'];
+    const PNAMES = ['0교시', '1교시', '2교시', '3교시', '4교시', '5교시', '6교시', '7교시'];
+    const DAY_EMOJI = ['🌅', '🌤', '☀️', '🌈', '🎉'];
 
-    <div id="analyze-result">
-      <div class="empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <p>감염 학번을 입력하고 분석을 시작하세요.</p>
-      </div>
-    </div>
-  </div>
+    let ROOMS = []; // 동적으로 설정되는 강의실 목록
+    let customRooms = [];
+    let roomSetupDone = false;
+    let db = {},
+        infectedList = [],
+        lastResult = null,
+        apiKey = '';
+    let curDisease = '감염병',
+        curDiseaseInfo = '';
 
-</main>
+    const STORAGE_KEY = 'infection_tracker_state_v1';
 
-<script>
-const ROOMS = ['3-1','3-2','3-3','3-4','3-5','3-6','3-7','3-8','3-9','3-10','3-11','다목적실','정보실','음악실','미술실','체육관'];
-const PNAMES = ['0교시','1교시','2교시','3교시','4교시','5교시','6교시','7교시'];
-let db = {};
-
-function switchTab(id, btn) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  btn.classList.add('active');
-}
-
-function ev(e, type) {
-  e.preventDefault();
-  const z = document.getElementById('upload-zone');
-  if (type === 'over') z.classList.add('over');
-  else if (type === 'leave') z.classList.remove('over');
-  else if (type === 'drop') { z.classList.remove('over'); handleFile(e.dataTransfer.files[0]); }
-}
-
-function handleFile(file) {
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = e => parseCSV(e.target.result);
-  r.onerror = () => { const r2 = new FileReader(); r2.onload = e => parseCSV(e.target.result); r2.readAsText(file, 'EUC-KR'); };
-  r.readAsText(file, 'UTF-8');
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
-  const msg = document.getElementById('upload-msg');
-  if (lines.length < 2) { msg.innerHTML = '<div class="msg msg-err">⚠️ 데이터가 부족합니다. 헤더 포함 2줄 이상 필요합니다.</div>'; return; }
-  const errors = [], newDb = {};
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(',').map(s => s.trim());
-    if (cols.length < 9) { errors.push(`${i+1}행 열 부족`); continue; }
-    const sid = cols[0];
-    const rooms = cols.slice(1, 9);
-    const inv = rooms.filter(r => r && !ROOMS.includes(r));
-    if (inv.length) errors.push(`${sid}: 알 수 없는 강의실 → ${inv.join(', ')}`);
-    newDb[sid] = rooms;
-  }
-  if (!Object.keys(newDb).length) { msg.innerHTML = '<div class="msg msg-err">유효한 학생 데이터가 없습니다.</div>'; return; }
-  db = newDb;
-  const cnt = Object.keys(db).length;
-  let html = `<div class="msg msg-ok">✅ ${cnt}명의 시간표가 로드됐습니다.</div>`;
-  if (errors.length) html += `<div class="msg msg-warn">⚠️ 경고 ${errors.length}건: ${errors.slice(0,3).join(' / ')}${errors.length>3?` 외 ${errors.length-3}건`:''}</div>`;
-  msg.innerHTML = html;
-  renderPreview();
-}
-
-function renderPreview() {
-  const keys = Object.keys(db);
-  if (!keys.length) return;
-  const classCount = {};
-  keys.forEach(sid => { const cls = sid.slice(1, 3); classCount[cls] = (classCount[cls] || 0) + 1; });
-  let html = `<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
-    <span style="font-size:15px;font-weight:600;">총 ${keys.length}명</span>`;
-  Object.entries(classCount).sort((a,b)=>a[0]-b[0]).forEach(([cls,cnt]) => {
-    html += `<span style="font-size:12px;padding:3px 9px;border-radius:5px;background:var(--accent-light);color:var(--accent);border:1px solid #c8dece;font-weight:500;">${parseInt(cls)}반 ${cnt}명</span>`;
-  });
-  html += `</div><div class="tbl-wrap"><table><thead><tr><th>학번</th>${PNAMES.map(p=>`<th>${p}</th>`).join('')}</tr></thead><tbody>`;
-  keys.slice(0, 50).forEach(sid => {
-    const baseRoom = db[sid][0];
-    html += `<tr><td class="sid">${sid}</td>${db[sid].map(r => `<td>${r ? `<span class="chip ${r===baseRoom?'chip-own':'chip-room'}">${r}</span>` : ''}</td>`).join('')}</tr>`;
-  });
-  if (keys.length > 50) html += `<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:12px;font-size:13px;">... 외 ${keys.length-50}명</td></tr>`;
-  html += '</tbody></table></div>';
-  document.getElementById('preview-content').innerHTML = html;
-}
-
-function doAnalyze() {
-  const infId = document.getElementById('inf-input').value.trim();
-  const thrHigh = parseInt(document.getElementById('thr-high').value) || 3;
-  const thrMid = parseInt(document.getElementById('thr-mid').value) || 1;
-  const el = document.getElementById('analyze-result');
-  if (!infId) { el.innerHTML = '<div class="msg msg-err">감염 학번을 입력해주세요.</div>'; return; }
-  if (!Object.keys(db).length) { el.innerHTML = '<div class="msg msg-err">먼저 시간표 파일을 업로드해주세요.</div>'; return; }
-  if (!db[infId]) { el.innerHTML = `<div class="msg msg-err">학번 <strong>${infId}</strong>은 데이터에 없습니다.</div>`; return; }
-
-  const infRooms = db[infId];
-  const high = [], mid = [], safe = [];
-  Object.entries(db).forEach(([sid, rooms]) => {
-    if (sid === infId) return;
-    const shared = [];
-    for (let p = 0; p < 8; p++) {
-      if (rooms[p] && infRooms[p] && rooms[p] === infRooms[p]) shared.push(`${PNAMES[p]}·${rooms[p]}`);
+    function saveState() {
+        try {
+            const state = {
+                ROOMS,
+                customRooms,
+                roomSetupDone,
+                db,
+                infectedList,
+                curDisease,
+                curDiseaseInfo,
+                gradeRanges: {
+                    g1min: document.getElementById('g1-min').value,
+                    g1max: document.getElementById('g1-max').value,
+                    g2min: document.getElementById('g2-min').value,
+                    g2max: document.getElementById('g2-max').value,
+                    g3min: document.getElementById('g3-min').value,
+                    g3max: document.getElementById('g3-max').value,
+                },
+                specialRooms: {
+                    music: document.getElementById('sp-music').checked,
+                    art: document.getElementById('sp-art').checked,
+                    gym: document.getElementById('sp-gym').checked,
+                },
+                thresholds: {
+                    high: document.getElementById('thr-high').value,
+                    mid: document.getElementById('thr-mid').value
+                },
+                incubation: {
+                    min: document.getElementById('min-day').value,
+                    max: document.getElementById('max-day').value
+                },
+                schoolName: document.getElementById('school-name').value,
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            console.warn('저장 실패:', e);
+        }
     }
-    const cnt = shared.length;
-    if (cnt >= thrHigh) high.push({ sid, cnt, shared });
-    else if (cnt >= thrMid) mid.push({ sid, cnt, shared });
-    else safe.push(sid);
-  });
-  high.sort((a, b) => b.cnt - a.cnt);
-  mid.sort((a, b) => b.cnt - a.cnt);
 
-  const total = Object.keys(db).length;
-  let html = `<div class="summary-grid">
-    <div class="scard sc-total"><div class="num">${total}</div><div class="lbl">전체 학생</div></div>
-    <div class="scard sc-inf"><div class="num">1</div><div class="lbl">감염자</div></div>
-    <div class="scard sc-high"><div class="num">${high.length}</div><div class="lbl">고위험군</div></div>
-    <div class="scard sc-mid"><div class="num">${mid.length}</div><div class="lbl">중위험군</div></div>
-    <div class="scard sc-safe"><div class="num">${safe.length}</div><div class="lbl">저위험</div></div>
-  </div>
-  <div class="inf-bar">
-    <span class="inf-pill">감염자</span>
-    <div>
-      <div class="inf-sid">${infId}</div>
-      <div class="inf-schedule">${infRooms.map((r,i) => `<strong>${PNAMES[i]}</strong> ${r||'—'}`).join(' &nbsp;|&nbsp; ')}</div>
-    </div>
-  </div>`;
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw)
+                return false;
+            const state = JSON.parse(raw);
+            ROOMS = state.ROOMS || [];
+            customRooms = state.customRooms || [];
+            roomSetupDone = state.roomSetupDone || false;
+            db = state.db || {};
+            infectedList = state.infectedList || [];
+            curDisease = state.curDisease || '감염병';
+            curDiseaseInfo = state.curDiseaseInfo || '';
+            if (state.gradeRanges) {
+                document.getElementById('g1-min').value = state.gradeRanges.g1min;
+                document.getElementById('g1-max').value = state.gradeRanges.g1max;
+                document.getElementById('g2-min').value = state.gradeRanges.g2min;
+                document.getElementById('g2-max').value = state.gradeRanges.g2max;
+                document.getElementById('g3-min').value = state.gradeRanges.g3min;
+                document.getElementById('g3-max').value = state.gradeRanges.g3max;
+            }
+            if (state.specialRooms) {
+                document.getElementById('sp-music').checked = state.specialRooms.music;
+                document.getElementById('sp-art').checked = state.specialRooms.art;
+                document.getElementById('sp-gym').checked = state.specialRooms.gym;
+            }
+            if (state.thresholds) {
+                document.getElementById('thr-high').value = state.thresholds.high;
+                document.getElementById('thr-mid').value = state.thresholds.mid;
+            }
+            if (state.incubation) {
+                document.getElementById('min-day').value = state.incubation.min;
+                document.getElementById('max-day').value = state.incubation.max;
+            }
+            if (state.schoolName)
+                document.getElementById('school-name').value = state.schoolName;
+            if (state.curDisease && state.curDisease !== '감염병')
+                document.getElementById('disease-input').value = state.curDisease;
+            return true;
+        } catch (e) {
+            console.warn('불러오기 실패:', e);
+            return false;
+        }
+    }
 
-  if (high.length) {
-    html += `<div class="risk-section">
-      <div class="risk-header rh-high">
-        <span class="risk-pill">고위험군</span>
-        <span class="risk-title">같은 강의실 ${thrHigh}교시 이상</span>
-        <span class="risk-cnt">${high.length}명</span>
-      </div>
-      <div class="risk-body"><div class="student-grid">
-        ${high.map(s => {
-          const pct = Math.round(s.cnt / 8 * 100);
-          return `<div class="stu-card sc-h">
-            <div class="stsid">${s.sid}</div>
-            <div class="stcnt">${s.cnt}교시 겹침 (${pct}%)</div>
-            <div class="bar-bg"><div class="bar-fill-h" style="width:${pct}%"></div></div>
-            <div class="stdetail">${s.shared.join(' / ')}</div>
-          </div>`;
-        }).join('')}
-      </div></div>
-    </div>`;
-  }
+    function clearSavedState() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
 
-  if (mid.length) {
-    const showCount = 12;
-    const midId = 'mid-grid-' + Date.now();
-    html += `<div class="risk-section">
-      <div class="risk-header rh-mid">
-        <span class="risk-pill">중위험군</span>
-        <span class="risk-title">같은 강의실 ${thrMid}~${thrHigh-1}교시</span>
-        <span class="risk-cnt">${mid.length}명</span>
-      </div>
-      <div class="risk-body">
-        <div class="student-grid" id="${midId}"></div>
-        ${mid.length > showCount ? `<div class="show-more" id="more-${midId}" onclick="toggleMid('${midId}',${JSON.stringify(mid).replace(/'/g,"\\'")},'${thrHigh}')">▼ 나머지 ${mid.length - showCount}명 더 보기</div>` : ''}
-      </div>
-    </div>`;
-    html += `<script>
-      (function(){
-        const data=${JSON.stringify(mid)};
-        const el=document.getElementById('${midId}');
-        data.slice(0,${showCount}).forEach(s=>{
-          const pct=Math.round(s.cnt/8*100);
-          el.innerHTML+=\`<div class="stu-card sc-m"><div class="stsid">\${s.sid}</div><div class="stcnt">\${s.cnt}교시 겹침 (\${pct}%)</div><div class="bar-bg"><div class="bar-fill-m" style="width:\${pct}%"></div></div><div class="stdetail">\${s.shared.join(' / ')}</div></div>\`;
+    document.getElementById('new-inf-date').valueAsDate = new Date();
+
+    // ===== 강의실 설정 =====
+    function addCustomRoom() {
+        const inp = document.getElementById('custom-room-input');
+        const val = inp.value.trim();
+        if (!val)
+            return;
+        if (customRooms.includes(val)) {
+            alert('이미 추가된 강의실입니다.');
+            return;
+        }
+        customRooms.push(val);
+        inp.value = '';
+        renderCustomRooms();
+    }
+    function removeCustomRoom(name) {
+        customRooms = customRooms.filter(r => r !== name);
+        renderCustomRooms();
+    }
+    function renderCustomRooms() {
+        const el = document.getElementById('custom-room-list');
+        if (!customRooms.length) {
+            el.innerHTML = '<span style="font-size:13px;color:var(--text3);">아직 추가된 특별실이 없습니다.</span>';
+            return;
+        }
+        el.innerHTML = customRooms.map(r => `<span class="custom-room-tag">${r}<button onclick="removeCustomRoom('${r}')">×</button></span>`).join('');
+    }
+
+    function applyRoomSetup() {
+        const grades = [
+        {
+            g: 1,
+            min: parseInt(document.getElementById('g1-min').value) || 0,
+            max: parseInt(document.getElementById('g1-max').value) || 0
+        },
+        {
+            g: 2,
+            min: parseInt(document.getElementById('g2-min').value) || 0,
+            max: parseInt(document.getElementById('g2-max').value) || 0
+        },
+        {
+            g: 3,
+            min: parseInt(document.getElementById('g3-min').value) || 0,
+            max: parseInt(document.getElementById('g3-max').value) || 0
+        },
+        ];
+        for (const {g, min, max} of grades) {
+            if (min < 0 || max < 0) {
+                alert(`${g}학년 반 번호는 0 이상이어야 합니다.`);
+                return;
+            }
+            if (max > 0 && min > max) {
+                alert(`${g}학년의 최소 반 번호가 최대 반 번호보다 클 수 없습니다.`);
+                return;
+            }
+        }
+        let rooms = [];
+        let gradeRangeText = [];
+        grades.forEach(({g, min, max}) => {
+            if (max >= min && max > 0) {
+                for (let c = min; c <= max; c++) {
+                    if (c > 0)
+                        rooms.push(`${g}-${c}`);
+                }
+                gradeRangeText.push(`${g}학년 ${min}~${max}반`);
+            }
         });
-      })();
-    <\/script>`;
-  }
+        if (document.getElementById('sp-music').checked)
+            rooms.push('음악실');
+        if (document.getElementById('sp-art').checked)
+            rooms.push('미술실');
+        if (document.getElementById('sp-gym').checked)
+            rooms.push('강당');
+        rooms = rooms.concat(customRooms);
 
-  if (safe.length) {
-    html += `<div class="safe-section">
-      <div class="safe-header">✅ 저위험 (같은 강의실 없음) — ${safe.length}명</div>
-      <div class="safe-tags">${safe.map(id => `<span class="safe-tag">${id}</span>`).join('')}</div>
-    </div>`;
-  }
+        if (rooms.length === 0) {
+            alert('최소 1개 이상의 학년 범위 또는 특별실을 설정해주세요.');
+            return;
+        }
 
-  html += `<div class="export-bar"><button class="btn btn-outline btn-sm" onclick="exportCSV('${infId}',${JSON.stringify(high)},${JSON.stringify(mid)},${JSON.stringify(safe)})">📥 결과 CSV 내보내기</button></div>`;
-  el.innerHTML = html;
-}
+        ROOMS = rooms;
+        roomSetupDone = true;
 
-window.toggleMid = function(gridId, data, thrHigh) {
-  const el = document.getElementById(gridId);
-  const btn = document.getElementById('more-' + gridId);
-  const expanded = el.dataset.expanded === 'true';
-  if (!expanded) {
-    data.slice(12).forEach(s => {
-      const pct = Math.round(s.cnt / 8 * 100);
-      el.innerHTML += `<div class="stu-card sc-m"><div class="stsid">${s.sid}</div><div class="stcnt">${s.cnt}교시 겹침 (${pct}%)</div><div class="bar-bg"><div class="bar-fill-m" style="width:${pct}%"></div></div><div class="stdetail">${s.shared.join(' / ')}</div></div>`;
-    });
-    el.dataset.expanded = 'true';
-    btn.textContent = '▲ 접기';
-  } else {
-    const cards = el.querySelectorAll('.stu-card');
-    cards.forEach((c, i) => { if (i >= 12) c.remove(); });
-    el.dataset.expanded = 'false';
-    btn.textContent = `▼ 나머지 ${data.length - 12}명 더 보기`;
-  }
-};
+        const preview = document.getElementById('room-preview');
+        preview.style.display = 'block';
+        preview.innerHTML = `<strong>설정 완료!</strong> 총 ${rooms.length}개 강의실<br>` +
+        rooms.map(r => `<span class="room-preview-tag">${r}</span>`).join('');
 
-function exportCSV(infId, high, mid, safe) {
-  let csv = '학번,위험등급,겹친교시수,겹친수업\n';
-  csv += `${infId},감염자,,\n`;
-  high.forEach(s => csv += `${s.sid},고위험군,${s.cnt},"${s.shared.join(' / ')}"\n`);
-  mid.forEach(s => csv += `${s.sid},중위험군,${s.cnt},"${s.shared.join(' / ')}"\n`);
-  safe.forEach(id => csv += `${id},저위험,0,\n`);
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `접촉자분석_${infId}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-}
+        // 업로드 탭 CSV 포맷 미리보기 갱신
+        const sampleRoom1 = rooms[0] || '1-1';
+        const sampleRoom2 = rooms.find(r => !r.match(/^\d/)) || rooms[1] || '음악실';
+        document.getElementById('csv-format-preview').innerHTML =
+        `<span style="color:#6a9955"># 헤더 (고정)</span><br>` +
+        `<span style="color:#9cdcfe">학번</span>,<span style="color:#ce9178">0교시,1교시,2교시,3교시,4교시,5교시,6교시,7교시</span><br>` +
+        `<span style="color:#9cdcfe">예시학번</span>,<span style="color:#ce9178">${sampleRoom1},${sampleRoom1},${sampleRoom2},${sampleRoom1},${sampleRoom1},${sampleRoom1},${sampleRoom1},${sampleRoom2}</span>`;
+        document.getElementById('room-list-text').textContent = `사용 가능한 강의실 (${rooms.length}개): ${rooms.join(', ')}`;
 
-function loadSample() {
-  const specials = ['다목적실','정보실','음악실','미술실','체육관'];
-  let seed = 42;
-  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
-  db = {};
-  for (let cls = 1; cls <= 11; cls++) {
-    for (let n = 1; n <= 23; n++) {
-      const sid = `3${String(cls).padStart(2,'0')}${String(n).padStart(2,'0')}`;
-      const base = `3-${cls}`;
-      const schedule = [base];
-      for (let p = 1; p < 8; p++) schedule.push(rand() < 0.28 ? specials[Math.floor(rand() * specials.length)] : base);
-      db[sid] = schedule;
+        saveState();
+        alert(`강의실 설정이 완료됐습니다!\n${gradeRangeText.join(', ')}\n총 ${rooms.length}개 강의실\n\n이제 '시간표' 탭에서 CSV를 업로드해주세요.`);
     }
-  }
-  document.getElementById('upload-msg').innerHTML = `<div class="msg msg-ok">✅ 샘플 데이터 ${Object.keys(db).length}명이 로드됐습니다. 위험군 분석 탭에서 <strong>30101</strong>을 입력해보세요.</div>`;
-  renderPreview();
-}
 
-function clearAll() {
-  db = {};
-  document.getElementById('upload-msg').innerHTML = '';
-  document.getElementById('preview-content').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>먼저 시간표 파일을 업로드해주세요.</p></div>';
-  document.getElementById('analyze-result').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>감염 학번을 입력하고 분석을 시작하세요.</p></div>';
-  document.getElementById('inf-input').value = '';
-}
-</script>
+    // ===== 요일 카드 =====
+    const grid = document.getElementById('day-grid');
+    DAYS.forEach((day, i) => {
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.id = 'day-' + day;
+        card.innerHTML = `<div class="day-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div><div class="day-icon">${DAY_EMOJI[i]}</div><div class="day-label">${day.replace('요일', '')}</div><div class="day-status" id="status-${day}">클릭하여 업로드</div>`;
+        card.onclick = () => {
+            if (!roomSetupDone) {
+                alert('먼저 강의실 설정 탭에서 설정을 완료해주세요.');
+                return;
+            }
+            const fi = document.getElementById('file-input');
+            fi.onchange = e => handleFile(e.target.files[0], day);
+            fi.value = '';
+            fi.click();
+        };
+        grid.appendChild(card);
+    });
+
+    // ===== 저장된 상태 복원 =====
+    function restoreUIFromState() {
+        renderCustomRooms();
+        renderInfList();
+        if (roomSetupDone && ROOMS.length) {
+            const preview = document.getElementById('room-preview');
+            preview.style.display = 'block';
+            preview.innerHTML = `<strong>저장된 설정 복원됨!</strong> 총 ${ROOMS.length}개 강의실<br>` + ROOMS.map(r => `<span class="room-preview-tag">${r}</span>`).join('');
+            const sampleRoom1 = ROOMS[0] || '1-1';
+            const sampleRoom2 = ROOMS.find(r => !r.match(/^\d/)) || ROOMS[1] || '음악실';
+            document.getElementById('csv-format-preview').innerHTML =
+            `<span style="color:#6a9955"># 헤더 (고정)</span><br>` +
+            `<span style="color:#9cdcfe">학번</span>,<span style="color:#ce9178">0교시,1교시,2교시,3교시,4교시,5교시,6교시,7교시</span><br>` +
+            `<span style="color:#9cdcfe">예시학번</span>,<span style="color:#ce9178">${sampleRoom1},${sampleRoom1},${sampleRoom2},${sampleRoom1},${sampleRoom1},${sampleRoom1},${sampleRoom1},${sampleRoom2}</span>`;
+            document.getElementById('room-list-text').textContent = `사용 가능한 강의실 (${ROOMS.length}개): ${ROOMS.join(', ')}`;
+        }
+        DAYS.forEach(day => {
+            if (db[day]) {
+                document.getElementById('day-' + day).classList.add('loaded');
+                document.getElementById('status-' + day).textContent = Object.keys(db[day]).length + '명 로드됨';
+            }
+        });
+        const loadedDays = DAYS.filter(d => db[d]);
+        if (loadedDays.length) {
+            document.getElementById('upload-msg').innerHTML = `<div class="msg msg-ok">✅ 저장된 시간표 복원: ${loadedDays.map(d => d.replace('요일', '')).join(', ')} (${loadedDays.length}/5)</div>`;
+        }
+        if (curDiseaseInfo && curDiseaseInfo.symptoms) {
+            const infoBox = document.getElementById('disease-info');
+            infoBox.className = 'disease-info-box loaded';
+            infoBox.innerHTML = `<strong>${curDisease}</strong> — ${curDiseaseInfo.summary || ''}<br><span style="color:var(--high);">◆ 주요 증상:</span> ${curDiseaseInfo.symptoms.join(', ')}<br><span style="color:var(--accent);">◆ 예방수칙:</span> ${curDiseaseInfo.prevention.join(', ')}<br><span style="color:#7c3aed;">◆ 잠복기:</span> ${document.getElementById('min-day').value}~${document.getElementById('max-day').value}일 (저장된 정보)`;
+        }
+    }
+
+    if (loadState()) {
+        restoreUIFromState();
+    } else {
+        renderCustomRooms();
+    }
+
+    function switchTab(id, btn) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function handleFile(file, day) {
+        if (!file)
+            return;
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+            alert('CSV 파일만 업로드할 수 있습니다. (.csv 확장자)');
+            return;
+        }
+        if (file.size === 0) {
+            alert('빈 파일입니다. 내용이 있는 CSV 파일을 선택해주세요.');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('파일이 너무 큽니다 (5MB 초과). 파일을 확인해주세요.');
+            return;
+        }
+        const r = new FileReader();
+        r.onload = e => parseCSV(e.target.result, day);
+        r.onerror = () => {
+            const r2 = new FileReader();
+            r2.onload = e => parseCSV(e.target.result, day);
+            r2.readAsText(file, 'EUC-KR');
+        };
+        r.readAsText(file, 'UTF-8');
+    }
+    function parseCSV(text, day) {
+        const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+        if (lines.length < 2) {
+            document.getElementById('upload-msg').innerHTML = '<div class="msg msg-err">파일에 데이터가 없습니다. 헤더와 학생 데이터가 모두 있는 CSV를 업로드해주세요.</div>';
+            return;
+        }
+        const dayDb = {};
+        const errors = [];
+        for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(s => s.trim());
+            if (cols.length < 9) {
+                errors.push(`${i + 1}행 열 부족 (9열 필요, ${cols.length}열 발견)`);
+                continue;
+            }
+            const sid = cols[0];
+            if (!sid) {
+                errors.push(`${i + 1}행: 학번이 비어있음`);
+                continue;
+            }
+            if (!/^\d+$/.test(sid)) {
+                errors.push(`${i + 1}행: 학번 '${sid}'은 숫자가 아님`);
+                continue;
+            }
+            const rooms = cols.slice(1, 9);
+            const inv = rooms.filter(r => r && !ROOMS.includes(r));
+            if (inv.length)
+                errors.push(`${sid}: 등록되지 않은 강의실 → ${inv.join(',')}`);
+            dayDb[sid] = rooms;
+        }
+        if (Object.keys(dayDb).length === 0) {
+            document.getElementById('upload-msg').innerHTML = `<div class="msg msg-err">유효한 학생 데이터를 찾을 수 없습니다.${errors.length ? ' 오류: ' + errors.slice(0, 3).join(' / ') : ''}</div>`;
+            return;
+        }
+        db[day] = dayDb;
+        document.getElementById('day-' + day).classList.add('loaded');
+        document.getElementById('status-' + day).textContent = Object.keys(dayDb).length + '명 로드됨';
+        const loaded = DAYS.filter(d => db[d]);
+        let html = `<div class="msg msg-ok">✅ ${loaded.map(d => d.replace('요일', '')).join(', ')} 로드 완료 (${loaded.length}/5)</div>`;
+        if (errors.length)
+            html += `<div class="msg msg-warn">⚠️ 일부 행에 문제 발견 (${errors.length}건): ${errors.slice(0, 3).join(' / ')}${errors.length > 3 ? ` 외 ${errors.length - 3}건` : ''}</div>`;
+        document.getElementById('upload-msg').innerHTML = html;
+        saveState();
+    }
+
+    // ===== 감염병 AI 검색 =====
+    async function searchDisease() {
+        const name = document.getElementById('disease-input').value.trim();
+        if (!name) {
+            alert('감염병 이름을 입력해주세요.');
+            return;
+        }
+        curDisease = name;
+        const infoBox = document.getElementById('disease-info');
+        if (!apiKey) {
+            infoBox.className = 'disease-info-box loaded';
+            infoBox.textContent = `${name} — API 키가 없어 잠복기를 직접 입력해주세요.`;
+            return;
+        }
+        infoBox.className = 'disease-info-box loading';
+        infoBox.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div> AI가 ' + name + ' 정보를 검색 중...';
+        document.getElementById('search-btn').disabled = true;
+        try {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-6',
+                    max_tokens: 500,
+                    messages: [{
+                        role: 'user',
+                        content: `${name}의 잠복기(최소일수, 최대일수), 주요 증상 3가지, 핵심 예방수칙 3가지를 JSON으로만 답해주세요. 다른 텍스트 없이 JSON만.
+                        형식: {"min":숫자,"max":숫자,"symptoms":["증상1","증상2","증상3"],"prevention":["수칙1","수칙2","수칙3"],"summary":"한줄요약"}`
+                    }]
+                })
+            });
+            const data = await res.json();
+            const text = data.content[0].text;
+            const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+            document.getElementById('min-day').value = json.min;
+            document.getElementById('max-day').value = json.max;
+            curDiseaseInfo = json;
+            infoBox.className = 'disease-info-box loaded';
+            infoBox.innerHTML = `<strong>${name}</strong> — ${json.summary}<br><span style="color:var(--high);">◆ 주요 증상:</span> ${json.symptoms.join(', ')}<br><span style="color:var(--accent);">◆ 예방수칙:</span> ${json.prevention.join(', ')}<br><span style="color:#7c3aed;">◆ 잠복기:</span> ${json.min}~${json.max}일 (수정 가능)`;
+            saveState();
+        } catch (e) {
+            infoBox.className = 'disease-info-box loaded';
+            infoBox.textContent = `검색 실패: ${e.message} — 잠복기를 직접 입력해주세요.`;
+        }
+        document.getElementById('search-btn').disabled = false;
+    }
+
+    function addInfected() {
+        const sid = document.getElementById('new-inf-id').value.trim();
+        const date = document.getElementById('new-inf-date').value;
+        if (!sid) {
+            alert('학번을 입력해주세요.');
+            return;
+        }
+        if (!/^\d+$/.test(sid)) {
+            alert('학번은 숫자만 입력해주세요.');
+            return;
+        }
+        if (!date) {
+            alert('감염 확인일을 선택해주세요.');
+            return;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (new Date(date) > today) {
+            alert('감염 확인일은 오늘 이전 날짜여야 합니다.');
+            return;
+        }
+        if (infectedList.find(i => i.sid === sid)) {
+            alert('이미 추가된 학번입니다.');
+            return;
+        }
+        infectedList.push({
+            sid,
+            date
+        });
+        document.getElementById('new-inf-id').value = '';
+        renderInfList();
+        saveState();
+    }
+    function removeInfected(sid) {
+        infectedList = infectedList.filter(i => i.sid !== sid);
+        renderInfList();
+        saveState();
+    }
+    function renderInfList() {
+        const el = document.getElementById('inf-list');
+        if (!infectedList.length) {
+            el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px 0;">아직 추가된 감염자가 없습니다.</div>';
+            return;
+        }
+        el.innerHTML = infectedList.map(inf => `<div class="inf-row"><span class="sid-tag">🦠 ${inf.sid}</span><span class="date-tag">확인일: ${inf.date}</span><button class="del-btn" onclick="removeInfected('${inf.sid}')">×</button></div>`).join('');
+    }
+
+    function getSchoolDaysInRange(from, to) {
+        const dn = ['일', '월', '화', '수', '목', '금', '토'];
+        const result = new Set();
+        const cur = new Date(from);
+        while (cur <= to) {
+            const d = dn[cur.getDay()] + '요일';
+            if (['월요일', '화요일', '수요일', '목요일', '금요일'].includes(d))
+                result.add(d);
+            cur.setDate(cur.getDate() + 1);
+        }
+        return [...result];
+    }
+
+    // 학번 → 학년/반 파싱: 학번 첫자리=학년, 다음 2자리=반 (예: 30101 → 3학년 1반)
+    function parseSid(sid) {
+        const grade = parseInt(sid.slice(0, 1));
+        const cls = parseInt(sid.slice(1, 3));
+        return {
+            grade: isNaN(grade) ? 0 : grade,
+            cls: isNaN(cls) ? 0 : cls
+        };
+    }
+
+    function doAnalyze() {
+        const thrHigh = parseInt(document.getElementById('thr-high').value) || 3;
+        const thrMid = parseInt(document.getElementById('thr-mid').value) || 1;
+        const curMin = parseInt(document.getElementById('min-day').value) || 2;
+        const curMax = parseInt(document.getElementById('max-day').value) || 14;
+        const el = document.getElementById('analyze-result');
+        if (!roomSetupDone) {
+            el.innerHTML = '<div class="msg msg-err">먼저 강의실 설정 탭에서 설정을 완료해주세요.</div>';
+            return;
+        }
+        if (!curDisease || curDisease === '감염병') {
+            el.innerHTML = '<div class="msg msg-err">감염병 이름을 먼저 입력해주세요.</div>';
+            return;
+        }
+        if (curMin < 1 || curMax < 1 || curMin > curMax) {
+            el.innerHTML = '<div class="msg msg-err">잠복기 설정이 올바르지 않습니다. 최소값이 최대값보다 작거나 같아야 합니다.</div>';
+            return;
+        }
+        if (thrMid > thrHigh) {
+            el.innerHTML = '<div class="msg msg-err">중위험군 기준 교시 수가 고위험군 기준보다 클 수 없습니다.</div>';
+            return;
+        }
+        if (!infectedList.length) {
+            el.innerHTML = '<div class="msg msg-err">감염자를 1명 이상 추가해주세요.</div>';
+            return;
+        }
+        const loadedDays = DAYS.filter(d => db[d]);
+        if (!loadedDays.length) {
+            el.innerHTML = '<div class="msg msg-err">먼저 시간표 파일을 업로드해주세요.</div>';
+            return;
+        }
+        const missingInfected = infectedList.filter(inf => !loadedDays.some(d => db[d][inf.sid]));
+        if (missingInfected.length) {
+            el.innerHTML = `<div class="msg msg-err">다음 감염자의 시간표를 찾을 수 없습니다: ${missingInfected.map(i => i.sid).join(', ')}. 업로드된 시간표에 해당 학번이 있는지 확인해주세요.</div>`;
+            return;
+        }
+
+        const allStudents = new Set();
+        loadedDays.forEach(d => Object.keys(db[d]).forEach(sid => allStudents.add(sid)));
+        const infIds = new Set(infectedList.map(i => i.sid));
+        const contactMap = {};
+
+        infectedList.forEach(inf => {
+            const infDate = new Date(inf.date);
+            const from = new Date(infDate);
+            from.setDate(from.getDate() - curMax);
+            const to = new Date(infDate);
+            to.setDate(to.getDate() - curMin);
+            const targetDays = getSchoolDaysInRange(from, to).filter(d => db[d] && db[d][inf.sid]);
+            const infSchedule = {};
+            targetDays.forEach(day => {
+                if (db[day] && db[day][inf.sid])
+                    infSchedule[day] = db[day][inf.sid];
+            });
+            allStudents.forEach(sid => {
+                if (infIds.has(sid))
+                    return;
+                if (!contactMap[sid])
+                    contactMap[sid] = {
+                        totalCnt: 0,
+                        infectorSet: new Set(),
+                        details: []
+                    };
+                targetDays.forEach(day => {
+                    if (!db[day] || !db[day][sid] || !infSchedule[day])
+                        return;
+                    const rooms = db[day][sid];
+                    const infRooms = infSchedule[day];
+                    for (let p = 0; p < 8; p++) {
+                        if (rooms[p] && infRooms[p] && rooms[p] === infRooms[p]) {
+                            contactMap[sid].totalCnt++;
+                            contactMap[sid].infectorSet.add(inf.sid);
+                            contactMap[sid].details.push(`${day.replace('요일', '')} ${PNAMES[p]}·${rooms[p]}`);
+                        }
+                    }
+                });
+            });
+        });
+
+        const high = [],
+            mid = [],
+            safe = [];
+        allStudents.forEach(sid => {
+            if (infIds.has(sid))
+                return;
+            if (!contactMap[sid] || contactMap[sid].totalCnt === 0) {
+                safe.push(sid);
+                return;
+            }
+            const {totalCnt, infectorSet, details} = contactMap[sid];
+            const bonus = infectorSet.size >= 2 ? 1 : 0;
+            if (totalCnt >= Math.max(1, thrHigh - bonus))
+                high.push({
+                    sid,
+                    totalCnt,
+                    infectorCount: infectorSet.size,
+                    details
+                });
+            else if (totalCnt >= Math.max(1, thrMid - bonus))
+                mid.push({
+                    sid,
+                    totalCnt,
+                    infectorCount: infectorSet.size,
+                    details
+                });
+            else
+                safe.push(sid);
+        });
+        high.sort((a, b) => b.infectorCount - a.infectorCount || b.totalCnt - a.totalCnt);
+        mid.sort((a, b) => b.infectorCount - a.infectorCount || b.totalCnt - a.totalCnt);
+        lastResult = {
+            high,
+            mid,
+            safe,
+            infectedList: [...infectedList],
+            thrHigh,
+            thrMid,
+            curMin,
+            curMax,
+            disease: curDisease,
+            diseaseInfo: curDiseaseInfo
+        };
+
+        const total = allStudents.size - infIds.size;
+        const fmt = d => `${d.getMonth() + 1}/${d.getDate()}`;
+        const wbClass = n => n >= 3 ? 'wb-3' : n === 2 ? 'wb-2' : 'wb-1';
+
+        let html = `<div class="summary-grid">
+            <div class="scard sc-total"><div class="num">${total}</div><div class="lbl">전체</div></div>
+            <div class="scard sc-inf"><div class="num">${infectedList.length}</div><div class="lbl">감염자</div></div>
+            <div class="scard sc-high"><div class="num">${high.length}</div><div class="lbl">고위험군</div></div>
+            <div class="scard sc-mid"><div class="num">${mid.length}</div><div class="lbl">중위험군</div></div>
+            <div class="scard sc-safe"><div class="num">${safe.length}</div><div class="lbl">저위험</div></div>
+          </div>
+          <div class="incub-bar"><span class="incub-pill">${curDisease}</span>잠복기 ${curMin}~${curMax}일 &nbsp;|&nbsp; 감염자 ${infectedList.length}명</div>
+          ${infectedList.map(inf => {const infDate = new Date(inf.date);const from = new Date(infDate);from.setDate(from.getDate() - curMax);const to = new Date(infDate);to.setDate(to.getDate() - curMin);return `<div class="inf-bar"><span class="inf-pill">감염자</span><div><div class="inf-sid">${inf.sid}</div><div class="inf-meta">확인일: ${inf.date} &nbsp;|&nbsp; 의심기간: ${fmt(from)} ~ ${fmt(to)}</div></div></div>`;}).join('')}`;
+
+        if (high.length)
+            html += `<div class="risk-section"><div class="risk-header rh-high"><span class="risk-pill">고위험군</span><span class="risk-title">${thrHigh}교시 이상 접촉</span><span class="risk-cnt">${high.length}명</span></div><div class="risk-body"><div class="student-grid">${high.map(s => `<div class="stu-card sc-h"><div class="stu-sid">${s.sid}<span class="weight-badge ${wbClass(s.infectorCount)}">${s.infectorCount}</span></div><div class="stu-cnt">${s.totalCnt}교시 겹침</div><div class="stu-detail">${s.details.join(' / ')}</div></div>`).join('')}</div>
+                <div class="nice-row"><span style="font-size:12px;color:var(--text3);">고위험군 학번 ${high.length}명</span><button class="nice-btn" onclick="sendToNice('${high.map(s => s.sid).join(',')}','고위험군','nice-ok-high')"><span class="nice-logo-badge">N</span>나이스로 전송</button></div>
+                <div class="nice-ok" id="nice-ok-high">✅ 학번이 복사됐습니다. 열린 나이스 탭에 붙여넣기 하세요.</div>
+              </div></div>`;
+        if (mid.length)
+            html += `<div class="risk-section"><div class="risk-header rh-mid"><span class="risk-pill">중위험군</span><span class="risk-title">${thrMid}~${thrHigh - 1}교시 접촉</span><span class="risk-cnt">${mid.length}명</span></div><div class="risk-body"><div class="student-grid">${mid.slice(0, 20).map(s => `<div class="stu-card sc-m"><div class="stu-sid">${s.sid}<span class="weight-badge ${wbClass(s.infectorCount)}">${s.infectorCount}</span></div><div class="stu-cnt">${s.totalCnt}교시 겹침</div><div class="stu-detail">${s.details.join(' / ')}</div></div>`).join('')}${mid.length > 20 ? `<div style="padding:8px;font-size:13px;color:var(--text2);">외 ${mid.length - 20}명</div>` : ''}</div>
+                <div class="nice-row"><span style="font-size:12px;color:var(--text3);">중위험군 학번 ${mid.length}명</span><button class="nice-btn" onclick="sendToNice('${mid.map(s => s.sid).join(',')}','중위험군','nice-ok-mid')"><span class="nice-logo-badge">N</span>나이스로 전송</button></div>
+                <div class="nice-ok" id="nice-ok-mid">✅ 학번이 복사됐습니다. 열린 나이스 탭에 붙여넣기 하세요.</div>
+              </div></div>`;
+        if (safe.length)
+            html += `<div class="safe-section"><div style="font-size:14px;font-weight:600;color:var(--safe);">✅ 저위험 — ${safe.length}명</div><div class="safe-tags">${safe.slice(0, 50).map(id => `<span class="safe-tag">${id}</span>`).join('')}${safe.length > 50 ? `<span style="font-size:12px;color:var(--text2);padding:4px 8px;">외 ${safe.length - 50}명</span>` : ''}</div></div>`;
+        html += `<div class="export-bar"><button class="btn btn-outline btn-sm" onclick="exportCSV()">📥 결과 CSV</button></div>`;
+        el.innerHTML = html;
+        renderClassResult();
+        saveState();
+    }
+
+    function renderClassResult() {
+        if (!lastResult)
+            return;
+        const {high, mid, safe} = lastResult;
+        const classMap = {};
+        [...high.map(s => ({
+            sid: s.sid,
+            level: 'high'
+        })), ...mid.map(s => ({
+            sid: s.sid,
+            level: 'mid'
+        })), ...safe.map(sid => ({
+            sid,
+            level: 'safe'
+        }))].forEach(({sid, level}) => {
+            const {grade, cls} = parseSid(sid);
+            const key = `${grade}-${cls}`;
+            if (!classMap[key])
+                classMap[key] = {
+                    grade,
+                    cls,
+                    high: 0,
+                    mid: 0,
+                    safe: 0
+                };
+            classMap[key][level]++;
+        });
+        const sorted = Object.values(classMap).sort((a, b) => (b.high * 3 + b.mid) - (a.high * 3 + a.mid));
+        const maxH = Math.max(...sorted.map(c => c.high), 1),
+            maxM = Math.max(...sorted.map(c => c.mid), 1);
+        let html = `<div style="font-size:13px;color:var(--text2);margin-bottom:14px;">위험도 점수 = 고위험 ×3 + 중위험 ×1</div><div class="class-grid">`;
+        sorted.forEach((c, i) => {
+            const rc = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+            html += `<div class="class-card"><div class="class-name"><span class="rank-badge ${rc}">${i + 1}</span>${c.grade}-${c.cls}반</div><div class="class-bar-row"><span style="font-size:11px;color:var(--high);width:28px;">고위험</span><div class="class-bar-bg"><div class="class-bar-h" style="width:${Math.round(c.high / maxH * 100)}%"></div></div><span style="font-size:11px;color:var(--high);width:20px;text-align:right;">${c.high}</span></div><div class="class-bar-row"><span style="font-size:11px;color:var(--mid);width:28px;">중위험</span><div class="class-bar-bg"><div class="class-bar-m" style="width:${Math.round(c.mid / maxM * 100)}%"></div></div><span style="font-size:11px;color:var(--mid);width:20px;text-align:right;">${c.mid}</span></div><div class="class-stat"><span class="class-stat-item csi-high">고 ${c.high}</span><span class="class-stat-item csi-mid">중 ${c.mid}</span><span class="class-stat-item csi-safe">저 ${c.safe}</span></div></div>`;
+        });
+        document.getElementById('class-result').innerHTML = html + '</div>';
+    }
+
+    function saveApiKey() {
+        const key = document.getElementById('api-key-input').value.trim();
+        if (!key.startsWith('sk-ant')) {
+            alert('올바른 Anthropic API 키 형식이 아닙니다.');
+            return;
+        }
+        apiKey = key;
+        document.getElementById('api-key-status').innerHTML = '<span style="color:var(--safe);font-weight:500;">✅ API 키 설정 완료</span>';
+    }
+
+    async function generateAllMessages() {
+        if (!lastResult) {
+            alert('먼저 접촉자 분석을 실행해주세요.');
+            return;
+        }
+        if (!apiKey) {
+            alert('API 키를 먼저 설정해주세요.');
+            return;
+        }
+        const school = document.getElementById('school-name').value.trim() || '○○고등학교';
+        const {high, mid, infectedList} = lastResult;
+        const types = [
+        {
+            id: 'msg-high',
+            label: `🔴 고위험군 안내문 (${high.length}명)`,
+            level: '고위험군'
+        },
+        {
+            id: 'msg-mid',
+            label: `🟠 중위험군 안내문 (${mid.length}명)`,
+            level: '중위험군'
+        },
+        {
+            id: 'msg-inf',
+            label: `🦠 감염자 가정 안내문 (${infectedList.length}명)`,
+            level: '감염자'
+        },
+        ];
+        let html = '';
+        types.forEach(t => {
+            html += `<div class="card"><div class="msg-header-row"><span class="msg-label">${t.label}</span><div style="display:flex;gap:8px;"><button class="copy-btn" onclick="copyMsg('${t.id}')">복사</button><button class="btn btn-purple btn-sm" onclick="regenMsg('${t.id}','${t.level}')">↺ 재생성</button></div></div><div class="msg-template" id="${t.id}"><div class="loading-dots"><span></span><span></span><span></span></div> 작성 중...</div><div id="copy-ok-${t.id}" class="copy-ok"></div></div>`;
+        });
+        document.getElementById('message-result').innerHTML = html;
+        for (const t of types) {
+            await regenMsg(t.id, t.level);
+        }
+    }
+
+    async function regenMsg(msgId, level) {
+        if (!lastResult)
+            return;
+        const school = document.getElementById('school-name').value.trim() || '○○고등학교';
+        const {high, mid, infectedList, curMin, curMax, disease, diseaseInfo, thrHigh, thrMid} = lastResult;
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+        const diseaseDetail = diseaseInfo && diseaseInfo.symptoms ? `증상: ${diseaseInfo.symptoms.join(', ')} / 예방수칙: ${diseaseInfo.prevention.join(', ')}` : `잠복기 ${curMin}~${curMax}일`;
+
+        const el = document.getElementById(msgId);
+        if (!el)
+            return;
+        el.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div> AI가 작성 중...';
+
+        const prompts = {
+            '고위험군': `${school} 보건실에서 ${disease} 확진 학생과 같은 강의실에서 수업한 고위험군 학생 가정에 보내는 안내 문자를 작성해주세요.
+            정보: 날짜 ${dateStr}, 잠복기 ${curMin}~${curMax}일, 동일 강의실 ${thrHigh}교시 이상 접촉, 고위험군 ${high.length}명
+            감염병 정보: ${diseaseDetail}
+            형식: [학교명]으로 시작, 인사, 상황설명, 주요증상, 행동수칙(등교 관련 포함), 문의처. 300자 내외.`,
+            '중위험군': `${school} 보건실에서 ${disease} 확진 학생과 같은 교시에 수업한 중위험군 학생 가정에 보내는 주의 안내 문자를 작성해주세요.
+            정보: 날짜 ${dateStr}, 잠복기 ${curMin}~${curMax}일, 동일 강의실 ${thrMid}~${thrHigh - 1}교시 접촉, 중위험군 ${mid.length}명
+            감염병 정보: ${diseaseDetail}
+            형식: [학교명]으로 시작, 인사, 상황설명(중위험군), 모니터링 증상, 예방수칙, 문의처. 250자 내외.`,
+            '감염자': `${school} 보건실에서 ${disease} 확진 학생 가정에 보내는 안내 문자를 작성해주세요.
+            정보: 날짜 ${dateStr}, 잠복기 ${curMin}~${curMax}일, 접촉자 고위험 ${high.length}명·중위험 ${mid.length}명 파악완료
+            감염병 정보: ${diseaseDetail}
+            형식: [학교명]으로 시작, 확진사실 안내, 등교재개 가능시점, 가정내 주의사항, 문의처. 250자 내외.`
+        };
+
+        try {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-6',
+                    max_tokens: 600,
+                    messages: [{
+                        role: 'user',
+                        content: prompts[level]
+                    }]
+                })
+            });
+            const data = await res.json();
+            el.textContent = data.content[0].text;
+        } catch (e) {
+            el.textContent = `오류: ${e.message}`;
+        }
+    }
+
+    function copyMsg(id) {
+        const el = document.getElementById(id);
+        if (!el)
+            return;
+        navigator.clipboard.writeText(el.innerText).then(() => {
+            const ok = document.getElementById('copy-ok-' + id);
+            if (ok) {
+                ok.textContent = '✅ 복사됐습니다! 쿨메신저에 붙여넣기 하세요.';
+                setTimeout(() => ok.textContent = '', 3000);
+            }
+        });
+    }
+
+    function sendToNice(sidStr, level, okElId) {
+        const sidList = sidStr.split(',').filter(Boolean);
+        const text = sidList.join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+            const ok = document.getElementById(okElId);
+            if (ok) {
+                ok.classList.add('show');
+                setTimeout(() => ok.classList.remove('show'), 5000);
+            }
+            window.open('https://www.neis.go.kr', '_blank');
+        }).catch(() => {
+            alert(`아래 ${level} 학번을 복사해서 나이스에 직접 붙여넣어 주세요:\n\n${sidList.join(', ')}`);
+        });
+    }
+
+    function exportCSV() {
+        if (!lastResult)
+            return;
+        const {high, mid, safe, infectedList} = lastResult;
+        let csv = '학번,위험등급,총겹친교시,접촉감염자수\n';
+        infectedList.forEach(i => csv += `${i.sid},감염자,,\n`);
+        high.forEach(s => csv += `${s.sid},고위험군,${s.totalCnt},${s.infectorCount}\n`);
+        mid.forEach(s => csv += `${s.sid},중위험군,${s.totalCnt},${s.infectorCount}\n`);
+        safe.forEach(id => csv += `${id},저위험,0,0\n`);
+        const blob = new Blob(['\uFEFF' + csv], {
+            type: 'text/csv;charset=utf-8;'
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `접촉자분석_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+    }
+
+    function loadSample() {
+        // 샘플: 강의실 설정 자동 적용 후 데이터 생성
+        document.getElementById('g3-min').value = 1;
+        document.getElementById('g3-max').value = 11;
+        document.getElementById('g1-min').value = 0;
+        document.getElementById('g1-max').value = 0;
+        document.getElementById('g2-min').value = 0;
+        document.getElementById('g2-max').value = 0;
+        customRooms = ['정보실', '다목적실'];
+        renderCustomRooms();
+        applyRoomSetup();
+
+        const specials = ROOMS.filter(r => !r.match(/^\d/));
+        let seed = 42;
+        const rand = () => {
+            seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+            return (seed >>> 0) / 0xffffffff;
+        };
+        DAYS.forEach(day => {
+            const dayDb = {};
+            for (let cls = 1; cls <= 11; cls++) {
+                for (let n = 1; n <= 23; n++) {
+                    const sid = `3${String(cls).padStart(2, '0')}${String(n).padStart(2, '0')}`;
+                    const base = `3-${cls}`;
+                    const schedule = [base];
+                    for (let p = 1; p < 8; p++)
+                        schedule.push(rand() < .28 ? specials[Math.floor(rand() * specials.length)] : base);
+                    dayDb[sid] = schedule;
+                }
+            }
+            db[day] = dayDb;
+            document.getElementById('day-' + day).classList.add('loaded');
+            document.getElementById('status-' + day).textContent = '253명 로드됨';
+        });
+        document.getElementById('upload-msg').innerHTML = '<div class="msg msg-ok">✅ 샘플 253명(3학년) 로드 완료! 분석 탭에서 감염자를 추가하세요.</div>';
+        switchTab('upload', document.querySelectorAll('.nav-tab')[1]);
+    }
+
+    function clearAll() {
+        if (!confirm('모든 데이터(강의실 설정, 시간표, 분석 결과)를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))
+            return;
+        db = {};
+        infectedList = [];
+        lastResult = null;
+        curDisease = '감염병';
+        curDiseaseInfo = '';
+        ROOMS = [];
+        customRooms = [];
+        roomSetupDone = false;
+        DAYS.forEach(day => {
+            document.getElementById('day-' + day).classList.remove('loaded');
+            document.getElementById('status-' + day).textContent = '클릭하여 업로드';
+        });
+        document.getElementById('upload-msg').innerHTML = '';
+        document.getElementById('disease-input').value = '';
+        document.getElementById('disease-info').className = 'disease-info-box';
+        document.getElementById('disease-info').textContent = '감염병 이름을 입력하고 AI 검색을 누르면 잠복기가 자동으로 설정됩니다.';
+        document.getElementById('room-preview').style.display = 'none';
+        document.getElementById('csv-format-preview').textContent = '먼저 강의실 설정을 완료해주세요.';
+        document.getElementById('room-list-text').textContent = '';
+        renderCustomRooms();
+        document.getElementById('analyze-result').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>감염병을 설정하고 분석을 시작하세요.</p></div>';
+        document.getElementById('class-result').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><p>먼저 접촉자 분석을 실행해주세요.</p></div>';
+        document.getElementById('message-result').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><p>먼저 접촉자 분석 탭에서 분석을 실행해주세요.</p></div>';
+        renderInfList();
+        clearSavedState();
+    }
+
+    // 주요 입력 필드 변경 시 자동 저장
+    ['school-name', 'thr-high', 'thr-mid', 'min-day', 'max-day'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el)
+            el.addEventListener('change', saveState);
+    });
+
+    // 페이지를 떠나기 전 마지막으로 한번 더 저장 (안전망)
+    window.addEventListener('beforeunload', saveState);
+    </script>
 </body>
 </html>
